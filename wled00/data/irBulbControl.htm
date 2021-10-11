@@ -1,6 +1,80 @@
-<!DOCTYPE html>
 <html>
+<style>
+    /* #selectedCommand {
+        height: 600px;
 
-<body>Hello world!</body>
+    } */
+		@import url("style.css");
+    
+</style>
+
+
+<body onload="bodyLoaded()">
+
+    <label for="selectedCommand">Choose a command:</label>
+    <select name="selectedCommand" id="selectedCommand">
+        <option value="01">Brightness Up</option>
+        <option value="02">brightness down</option>
+        <option value="04">off</option>
+        <option value="03">on</option>
+        <option value="05">red</option>
+        <option value="06">green</option>
+        <option value="07">blue</option>
+        <option value="08">white</option>
+        <option value="09">slightly lighter red</option>
+        <option value="10">slightly lighter green</option>
+        <option value="11">slightly lighter blue</option>
+        <option value="12">flash</option>
+        <option value="13">orange</option>
+        <option value="14">turquoise</option>
+        <option value="15">purple</option>
+        <option value="16">strobe</option>
+        <option value="17">slightly lighter orange</option>
+        <option value="18">navy</option>
+        <option value="19">pink</option>
+        <option value="20">fade</option>
+        <option value="21">yellow</option>
+        <option value="22">darker navy</option>
+        <option value="23">rose</option>
+        <option value="24">smooth</option>
+    </select>
+
+    <button class="btn infobtn" onclick="sendIrCommand()">Send Command</button>
+</body>
+
+<script>
+    function sendIrCommand() {
+        // Sending and receiving data in JSON format using POST method
+        
+        // let irCommand = document.getElementById('selectedCommand').value;
+
+        // var xhr = new XMLHttpRequest();
+        // var url = "/json/bulbCommand/"+irCommand;
+        // xhr.open("POST", url, true);
+        // xhr.setRequestHeader("Content-Type", "application/json");
+        // xhr.onreadystatechange = function () {
+        //     if (xhr.readyState === 4 && xhr.status === 200) {
+        //         var json = JSON.parse(xhr.responseText);
+        //         console.log("Got JSON response=" + xhr.responseText);
+        //         // console.log(json.email + ", " + json.password);
+        //     }
+        // };
+        // var data = JSON.stringify(
+        //     {
+        //         "type": "IR_BULB_COMMAND",
+        //     }
+        // );
+        // xhr.send(data);
+
+    }
+
+    function bodyLoaded() {
+        // console.log("Body loaded");
+
+    }
+
+
+
+</script>
 
 </html>
