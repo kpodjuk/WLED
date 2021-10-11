@@ -50,39 +50,43 @@
         width: 4.5em !important;
         }
 
+
+
     </style>
 </head>
 
 <body onload="bodyLoaded()">
 
-    <label for="selectedCommand">Choose a command:</label>
-    <select name="selectedCommand" id="selectedCommand">
+    <h1 style="padding-top:20px">Choose a command:</h1>
+    <select name="selectedCommand" id="selectedCommand" size="24">
         <option value="01">Brightness Up</option>
         <option value="02">Brightness Down</option>
-        <option value="04">on</option>
-        <option value="03">off</option>
-        <option value="05">red</option>
-        <option value="06">green</option>
-        <option value="07">blue</option>
-        <option value="08">white</option>
-        <option value="09">light red</option>
-        <option value="10">light green</option>
-        <option value="11">light blue</option>
-        <option value="12">flash</option>
-        <option value="13">orange</option>
-        <option value="14">turquoise</option>
-        <option value="15">purple</option>
-        <option value="16">strobe</option>
-        <option value="17">slightly lighter orange</option>
-        <option value="18">navy</option>
-        <option value="19">pink</option>
-        <option value="20">fade</option>
-        <option value="21">yellow</option>
-        <option value="22">darker navy</option>
-        <option value="23">rose</option>
-        <option value="24">smooth</option>
+        <option value="04">ON</option>
+        <option value="03">OFF</option>
+        <option value="05">Red</option>
+        <option value="06">Green</option>
+        <option value="07">Blue</option>
+        <option value="08">White</option>
+        <option value="09">Orange</option>
+        <option value="10">Light green</option>
+        <option value="11">Purple</option>
+        <option value="12">Flash</option>
+        <option value="13">Orange</option>
+        <option value="14">Green (aqua)</option>
+        <option value="15">Purple</option>
+        <option value="16">Strobe</option>
+        <option value="17">Yellow</option>
+        <option value="18">Purple</option>
+        <option value="19">Light Blue</option>
+        <option value="20">Fade</option>
+        <option value="21">Yellow</option>
+        <option value="22">Darker blue</option>
+        <option value="23">Rose</option>
+        <option value="24">Smooth</option>
     </select>
-
+    </br>
+    <!-- <form action="/"><button type="submit" id="b">Back</button></form> -->
+    <button class="btn infobtn" onclick="window.location.href = '/'">Back</button>
     <button class="btn infobtn" onclick="sendIrCommand()">Send Command</button>
 </body>
 <script>

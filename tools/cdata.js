@@ -347,10 +347,6 @@ writeChunks(
       append: ")=====",
       method: "plaintext",
       filter: "html-minify",
-      mangle: (str) =>
-        str
-          .replace(/\<link rel="stylesheet".*\>/gms, "")
-          .replace(/function GetV().*\<\/script\>/gms, "function GetV() {\n"),
     },
     {
       file: "msg.htm",
