@@ -71,15 +71,15 @@ class UserModIrBulbControl : public Usermod {
         {
         case 0:
           Serial.println("Sending RED color command");
-          irsend.sendNEC(0xF609FF00);
+          irsend.sendNEC(reverseBits(0xF609FF00, 32));
           break;
         case 1:
           Serial.println("Sending GREEN color command");
-          irsend.sendNEC(0xF708FF00);
+          irsend.sendNEC(reverseBits(0xF708FF00, 32));
           break;
         case 2:
           Serial.println("Sending BLUE color command");
-          irsend.sendNEC(0xF50AFF00);
+          irsend.sendNEC(reverseBits(0xF50AFF00, 32));
           break;
         }
 
