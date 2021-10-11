@@ -1,102 +1,178 @@
 <html>
+
 <head>
     <style>
         body {
-        font-family: Verdana, sans-serif;
-        text-align: center;
-        background: #222;
-        color: #fff;
-        line-height: 200%;
-        margin: 0;
+            font-family: Verdana, sans-serif;
+            text-align: center;
+            background: #222;
+            color: #fff;
+            line-height: 200%;
+            margin: 0;
         }
+
         hr {
-        border-color: #666;
+            border-color: #666;
         }
+
         button {
-        background: #333;
-        color: #fff;
-        font-family: Verdana, sans-serif;
-        border: 0.3ch solid #333;
-        display: inline-block;
-        font-size: 20px;
-        margin: 8px;
-        margin-top: 12px;
-        cursor: pointer;
+            background: #333;
+            color: #fff;
+            font-family: Verdana, sans-serif;
+            border: 0.3ch solid #333;
+            display: inline-block;
+            font-size: 20px;
+            margin: 8px;
+            margin-top: 12px;
+            cursor: pointer;
         }
+
         .helpB {
-        text-align: left;
-        position: absolute;
-        width: 60px;
+            text-align: left;
+            position: absolute;
+            width: 60px;
         }
+
         input {
-        background: #333;
-        color: #fff;
-        font-family: Verdana, sans-serif;
-        border: 0.5ch solid #333;
+            background: #333;
+            color: #fff;
+            font-family: Verdana, sans-serif;
+            border: 0.5ch solid #333;
         }
+
         input[type="number"] {
-        width: 4em;
+            width: 4em;
         }
+
         select {
-        background: #333;
-        color: #fff;
-        font-family: Verdana, sans-serif;
-        border: 0.5ch solid #333;
+            background: #333;
+            color: #fff;
+            font-family: Verdana, sans-serif;
+            border: 0.5ch solid #333;
         }
+
         td {
-        padding: 2px;
+            padding: 2px;
         }
+
         .d5 {
-        width: 4.5em !important;
+            width: 4.5em !important;
         }
 
+        #selectedColor {
+            overflow-y: auto;
+            /* width:5%; */
+            font-size: large;
+        }
 
+        #selectedEffect {
+            overflow-y: auto;
+            width: 20%;
+            font-size: large;
 
+        }
+
+        #backButton {
+            width: 20%;
+            margin-top: 4%;
+            padding: 2%;
+            /* padding-bottom: */
+            background-color: rgb(121, 65, 65);
+        }
+
+        .brightnessButton {
+            width: 30%;
+
+        }
     </style>
 </head>
 
 <body onload="bodyLoaded()">
 
-    <h1 style="padding-top:20px">Choose a command:</h1>
-    <select name="selectedCommand" id="selectedCommand" size="24">
-        <option value="01">Brightness Up</option>
-        <option value="02">Brightness Down</option>
-        <option value="04">ON</option>
-        <option value="03">OFF</option>
-        <option value="05">Red</option>
-        <option value="06">Green</option>
-        <option value="07">Blue</option>
+    <h1 style="padding-top:20px">Choose a color:</h1>
+    <select name="selectedColor" id="selectedColor" size="20" class="">
+        <!-- The disabled ones seem to be duplicates (but why? maybe there was a mistake when reading signal hex codes?) -->
+
+        <option value="03" selected="selected">Black</option>
+        <option value="03" disabled="disabled">--------------</option>
+
         <option value="08">White</option>
-        <option value="09">Orange</option>
-        <option value="10">Light green</option>
-        <option value="11">Purple</option>
-        <option value="12">Flash</option>
-        <option value="13">Orange</option>
-        <option value="14">Green (aqua)</option>
-        <option value="15">Purple</option>
-        <option value="16">Strobe</option>
-        <option value="17">Yellow</option>
+
+        <option value="03" disabled="disabled">--------------</option>
+
+        <option value="23">Light Purple</option>
+        <!-- <option value="15">Purple</option> -->
         <option value="18">Purple</option>
+        <option value="11">Dark Purple</option>
+
+        <option value="03" disabled="disabled">--------------</option>
+
+        <option value="10">Light Green</option>
+        <option value="06">Green</option>
+
+        <option value="03" disabled="disabled">--------------</option>
+
+        <!-- <option value="14">Green (aqua)</option> -->
         <option value="19">Light Blue</option>
-        <option value="20">Fade</option>
-        <option value="21">Yellow</option>
-        <option value="22">Darker blue</option>
-        <option value="23">Rose</option>
-        <option value="24">Smooth</option>
+        <option value="22">Blue</option>
+        <option value="07">Dark Blue</option>
+
+        <option value="03" disabled="disabled">--------------</option>
+
+        <option value="21">Light Yellow</option>
+        <option value="17">Yellow</option>
+        <option value="09">Dark Yellow</option>
+        <option value="03" disabled="disabled">--------------</option>
+
+        <option value="05">Red</option>
+        <!-- <option value="13">Orange</option> -->
+
+
+
+    </select>
+
+    <h1 style="padding-top:20px">Settings:</h1>
+    <!-- <button class="btn infobtn" onclick="sendIrCommand('04')">Turn back ON ⚡</button></br> -->
+    <button class="btn infobtn brightnessButton" id="" onclick="sendIrCommand('01')">Brightness Up
+        &#127774;</button></br>
+    <button class="btn infobtn brightnessButton" id="" onclick="sendIrCommand('02')">Brightness Down
+        &#127770;</button></br>
+
+    <h3 style="padding-top:5px">Effects:</h3>
+    <select id='selectedEffect' size="1">
+        <!-- <option value="nochange" selected="selected">No change</option> -->
+        <!-- <option value="12">Flash</option> -->
+        <!-- <option disabled selected value style="display:none"></option> -->
+        <option value="16">Random colors</option>
+        <option value="20">Smooth (fast)</option>
+        <option value="24">Smooth (slow)</option>
     </select>
     </br>
     <!-- <form action="/"><button type="submit" id="b">Back</button></form> -->
-    <button class="btn infobtn" onclick="window.location.href = '/'">Back</button>
-    <button class="btn infobtn" onclick="sendIrCommand()">Send Command</button>
+    <button class="btn infobtn" id="backButton"
+        onclick="window.location.href = '/'">Back</button>
+    <!-- <button class="btn infobtn" onclick="sendIrCommand()">Send Command</button> -->
 </body>
 <script>
-    function sendIrCommand() {
-        // Sending and receiving data in JSON format using POST method
-        
-        let irCommand = document.getElementById('selectedCommand').value;
+    function sendIrCommand(command) {
+        switch (command) {
+            case "color":  // sometimes you have to get it from <select>
+                irCommand = document.getElementById('selectedColor').value;
+                break;
+            case "effect":
+                irCommand = document.getElementById('selectedEffect').value;
+                break;
+            // case "nochange": // don't send anything, command = -1
+            //     irCommand = "-1";
+            //     break;
+            default: // command is actually real command id as is
+                irCommand = command;
+                break;
+        }
 
+        // if (irCommand != "-1") {
         var xhr = new XMLHttpRequest();
-        var url = "/bulbCommand/"+irCommand;
+        var url = "/bulbCommand/" + irCommand;
         xhr.open("POST", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         // xhr.onreadystatechange = function () {
@@ -112,13 +188,31 @@
             }
         );
         xhr.send(data);
+        // }
     }
 
     function bodyLoaded() {
-        // console.log("Body loaded");
+        // at load remove any selections
+        document.getElementById("selectedEffect").selectedIndex = -1;
+        document.getElementById("selectedColor").selectedIndex = -1;
+
+        document.getElementById("selectedColor").addEventListener("change", function () {
+            sendIrCommand("color");
+            document.getElementById("selectedEffect").selectedIndex = -1; // when there's color choosen forget about the effect
+            // console.log("color change");
+        });
+        // document.getElementById("selectedColor").addEventListener("click", function () {
+        //     sendIrCommand("color");
+        // });
+        document.getElementById("selectedEffect").addEventListener("change", function () {
+            sendIrCommand("effect");
+            document.getElementById("selectedColor").selectedIndex = -1; // when there's effect choosen forget about the color
+
+        });
+        // document.getElementById("selectedEffect").addEventListener("click", function () {
+        //     sendIrCommand("effect");
+        // });
     }
-
-
 
 </script>
 

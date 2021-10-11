@@ -44,6 +44,7 @@ public:
   {
     Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
+    sendButtonPressToLightbulb(3); // Turn off at the very beggining
   }
 
   /*
@@ -169,80 +170,86 @@ public:
 
 void sendButtonPressToLightbulb(unsigned int button)
 {
-
+  const unsigned char repeats = 2; // how many times to repeat communication of each command, for better reliabilty
+  if (button != 3 && button != 1 && button != 2)
+  {
+    // try to turn ON as a first thing in almost every case, unless command is to go black
+    // or increase/decrease brightness (we don't want to turn on in that case, we don't know the choosen color so the UI would be inconsistent)
+    irsend.sendNEC(reverseBits(0xF807FF00, 32), 32, repeats);
+  }
   switch (button)
   {
-  case 1: // brightness up
-    irsend.sendNEC(reverseBits(0xFA05FF00, 32));
+  case 1: // brightness up (there are 4 brightness levels)
+    irsend.sendNEC(reverseBits(0xFA05FF00, 32), 32, repeats);
     break;
   case 2: // brightness down
-    irsend.sendNEC(reverseBits(0xFB04FF00, 32));
+    irsend.sendNEC(reverseBits(0xFB04FF00, 32), 32, repeats);
     break;
-  case 3: // off
-    irsend.sendNEC(reverseBits(0xF906FF00, 32));
+  case 3: // black
+    irsend.sendNEC(reverseBits(0xF906FF00, 32), 32, repeats);
     break;
   case 4: // on
-    irsend.sendNEC(reverseBits(0xF807FF00, 32));
+    irsend.sendNEC(reverseBits(0xF807FF00, 32), 32, repeats);
     break;
   case 5: // red
-    irsend.sendNEC(reverseBits(0xF609FF00, 32));
+    irsend.sendNEC(reverseBits(0xF609FF00, 32), 32, repeats);
     break;
   case 6: // green
-    irsend.sendNEC(reverseBits(0xF708FF00, 32));
+    irsend.sendNEC(reverseBits(0xF708FF00, 32), 32, repeats);
     break;
   case 7: // blue
-    irsend.sendNEC(reverseBits(0xF50AFF00, 32));
+    irsend.sendNEC(reverseBits(0xF50AFF00, 32), 32, repeats);
     break;
   case 8: // white
-    irsend.sendNEC(reverseBits(0xF40BFF00, 32));
+    irsend.sendNEC(reverseBits(0xF40BFF00, 32), 32, repeats);
     break;
-  case 9: // slightly lighter red
-    irsend.sendNEC(reverseBits(0xF20DFF00, 32));
+  case 9:                                                     // slightly lighter red
+    irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats); // duplicate with 13 - same hex
     break;
   case 10: // slightly lighter green
-    irsend.sendNEC(reverseBits(0xF30CFF00, 32));
+    irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
     break;
   case 11: // slightly lighter blue
-    irsend.sendNEC(reverseBits(0xF10EFF00, 32));
+    irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
     break;
-  case 12: // flash
-    irsend.sendNEC(reverseBits(0xF00FFF00, 32));
+  case 12:                                                    // flash
+    irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats); // duplicate with 16 - same hex
     break;
   case 13: // orange
-    irsend.sendNEC(reverseBits(0xF20DFF00, 32));
+    irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats);
     break;
   case 14: // turquoise
-    irsend.sendNEC(reverseBits(0xF30CFF00, 32));
+    irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
     break;
   case 15: // purple
-    irsend.sendNEC(reverseBits(0xF10EFF00, 32));
+    irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
     break;
   case 16: // strobe
-    irsend.sendNEC(reverseBits(0xF00FFF00, 32));
+    irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats);
     break;
   case 17: // slightly lighter orange
-    irsend.sendNEC(reverseBits(0xE619FF00, 32));
+    irsend.sendNEC(reverseBits(0xE619FF00, 32), 32, repeats);
     break;
   case 18: // navy
-    irsend.sendNEC(reverseBits(0xE718FF00, 32));
+    irsend.sendNEC(reverseBits(0xE718FF00, 32), 32, repeats);
     break;
   case 19: // pink
-    irsend.sendNEC(reverseBits(0xE51AFF00, 32));
+    irsend.sendNEC(reverseBits(0xE51AFF00, 32), 32, repeats);
     break;
   case 20: // fade
-    irsend.sendNEC(reverseBits(0xE41BFF00, 32));
+    irsend.sendNEC(reverseBits(0xE41BFF00, 32), 32, repeats);
     break;
   case 21: // yellow
-    irsend.sendNEC(reverseBits(0xEE11FF00, 32));
+    irsend.sendNEC(reverseBits(0xEE11FF00, 32), 32, repeats);
     break;
   case 22: // darker navy
-    irsend.sendNEC(reverseBits(0xEF10FF00, 32));
+    irsend.sendNEC(reverseBits(0xEF10FF00, 32), 32, repeats);
     break;
   case 23: // rose
-    irsend.sendNEC(reverseBits(0xED12FF00, 32));
+    irsend.sendNEC(reverseBits(0xED12FF00, 32), 32, repeats);
     break;
   case 24: // smooth
-    irsend.sendNEC(reverseBits(0xEC13FF00, 32));
+    irsend.sendNEC(reverseBits(0xEC13FF00, 32), 32, repeats);
     break;
   }
 }
