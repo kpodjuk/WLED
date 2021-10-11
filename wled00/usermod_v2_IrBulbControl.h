@@ -1,7 +1,10 @@
 #pragma once
 
 #include "wled.h"
-
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+#include <Arduino.h>
+#include <IRutils.h>
 /*
  * Usermods allow you to add own functionality to WLED more easily
  * See: https://github.com/Aircoookie/WLED/wiki/Add-own-functionality
@@ -19,6 +22,8 @@
  * 1. Copy the usermod into the sketch folder (same folder as wled00.ino)
  * 2. Register the usermod by adding #include "usermod_filename.h" in the top and registerUsermod(new MyUsermodClass()) in the bottom of usermods_list.cpp
  */
+const uint16_t kIrLed = 4;  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
+IRsend irsend(kIrLed);  // Set the GPIO to be used to sending the message.
 
 //class name. Use something descriptive and leave the ": public Usermod" part :)
 class UserModIrBulbControl : public Usermod {
@@ -32,10 +37,11 @@ class UserModIrBulbControl : public Usermod {
      * setup() is called once at boot. WiFi is not yet connected at this point.
      * You can use it to initialize variables, sensors or similar.
      */
-    void setup() {
+    void setup()
+    {
       Serial.println("Hello from UserModIrBulbControl!");
+      irsend.begin();
     }
-
 
     /*
      * connected() is called every time the WiFi is (re)connected
@@ -57,10 +63,31 @@ class UserModIrBulbControl : public Usermod {
      *    Instead, use a timer check as shown here.
      */
     void loop() {
-      // if (millis() - lastTime > 10000) {
-      //   Serial.println("I'm alive!");
-      //   lastTime = millis();
-      // }
+      static unsigned int counter = 0;
+
+      if (millis() - lastTime > 2000)
+      {
+        switch (counter)
+        {
+        case 0:
+          Serial.println("Sending RED color command");
+          irsend.sendNEC(0xF609FF00);
+          break;
+        case 1:
+          Serial.println("Sending GREEN color command");
+          irsend.sendNEC(0xF708FF00);
+          break;
+        case 2:
+          Serial.println("Sending BLUE color command");
+          irsend.sendNEC(0xF50AFF00);
+          break;
+        }
+
+        if(counter == 2) counter = 0;
+
+        lastTime = millis();
+        counter++;
+      }
     }
 
 
