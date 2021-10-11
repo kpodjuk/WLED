@@ -553,6 +553,9 @@ WLED_GLOBAL UsermodManager usermods _INIT(UsermodManager());
   WLED_GLOBAL bool ledStatusState _INIT(0); // the current LED state
 #endif
 
+// desired command to sent to lightbulbs
+WLED_GLOBAL int bulbCommand _INIT(-1);
+
 // enable additional debug output
 #ifdef WLED_DEBUG
   #ifndef ESP8266

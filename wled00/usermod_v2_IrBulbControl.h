@@ -62,26 +62,17 @@ class UserModIrBulbControl : public Usermod {
      *    Instead, use a timer check as shown here.
      */
     void loop() {
-      static unsigned int counter = 0;
-
+      // horrible solution, instead of calling "sendButtonPressToLightbulb" from wled_server.cpp 
+      // I'm passing the data through bulbCommand global variable
       if (millis() - lastTime > 500)
       {
-        switch (counter)
-        {
-        case 0:
-          Serial.println("Sending RED color command");
-          sendButtonPressToLightbulb(4);
-          break;
-        case 1:
-          Serial.println("Sending GREEN color command");
-          sendButtonPressToLightbulb(5);
-          break;
-        }
-
-        if(counter == 2) counter = 0;
+        if(bulbCommand > -1){
+          sendButtonPressToLightbulb(bulbCommand);
+          Serial.println(bulbCommand);
+          bulbCommand = -1; // -1 means there's no command to fullfil
+        } 
 
         lastTime = millis();
-        counter++;
       }
     }
 
@@ -90,76 +81,76 @@ class UserModIrBulbControl : public Usermod {
 
       switch (button)
       {
-      case 0: // brightness up
+      case 1: // brightness up
         irsend.sendNEC(reverseBits(0xFA05FF00, 32));
         break;
-      case 1: // brightness down
+      case 2: // brightness down
         irsend.sendNEC(reverseBits(0xFB04FF00, 32));
         break;
-      case 2: // off
+      case 3: // off
         irsend.sendNEC(reverseBits(0xF906FF00, 32));
         break;
-      case 3: // on
+      case 4: // on
         irsend.sendNEC(reverseBits(0xF807FF00, 32));
         break;
-      case 4: // red
+      case 5: // red
         irsend.sendNEC(reverseBits(0xF609FF00, 32));
         break;
-      case 5: // green
+      case 6: // green
         irsend.sendNEC(reverseBits(0xF708FF00, 32));
         break;
-      case 6: // blue
+      case 7: // blue
         irsend.sendNEC(reverseBits(0xF50AFF00, 32));
         break;
-      case 7: // white
+      case 8: // white
         irsend.sendNEC(reverseBits(0xF40BFF00, 32));
         break;
-      case 8: // slightly lighter red
+      case 9: // slightly lighter red
         irsend.sendNEC(reverseBits(0xF20DFF00, 32));
         break;
-      case 19: // slightly lighter green
+      case 10: // slightly lighter green
         irsend.sendNEC(reverseBits(0xF30CFF00, 32));
         break;
-      case 20: // slightly lighter blue
+      case 11: // slightly lighter blue
         irsend.sendNEC(reverseBits(0xF10EFF00, 32));
         break;
-      case 21: // flash
+      case 12: // flash
         irsend.sendNEC(reverseBits(0xF00FFF00, 32));
         break;
-      case 22: // orange
+      case 13: // orange
         irsend.sendNEC(reverseBits(0xF20DFF00, 32));
         break;
-      case 23: // turquoise
+      case 14: // turquoise
         irsend.sendNEC(reverseBits(0xF30CFF00, 32));
         break;
-      case 24: // purple
+      case 15: // purple
         irsend.sendNEC(reverseBits(0xF10EFF00, 32));
         break;
-      case 25: // strobe
+      case 16: // strobe
         irsend.sendNEC(reverseBits(0xF00FFF00, 32));
         break;
-      case 26: // slightly lighter orange
+      case 17: // slightly lighter orange
         irsend.sendNEC(reverseBits(0xE619FF00, 32));
         break;
-      case 27: // navy
+      case 18: // navy
         irsend.sendNEC(reverseBits(0xE718FF00, 32));
         break;
-      case 28: // pink
+      case 19: // pink
         irsend.sendNEC(reverseBits(0xE51AFF00, 32));
         break;
-      case 29: // fade
+      case 20: // fade
         irsend.sendNEC(reverseBits(0xE41BFF00, 32));
         break;
-      case 30: // yellow
+      case 21: // yellow
         irsend.sendNEC(reverseBits(0xEE11FF00, 32));
         break;
-      case 31: // darker navy
+      case 22: // darker navy
         irsend.sendNEC(reverseBits(0xEF10FF00, 32));
         break;
-      case 32: // rose
+      case 23: // rose
         irsend.sendNEC(reverseBits(0xED12FF00, 32));
         break;
-      case 33: // smooth
+      case 24: // smooth
         irsend.sendNEC(reverseBits(0xEC13FF00, 32));
         break;
       }
