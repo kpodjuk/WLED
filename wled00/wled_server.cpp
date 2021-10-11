@@ -78,6 +78,14 @@ void initServer()
     serveSettings(request, true);
   });
 
+  server.on("/bulbCommand", HTTP_POST, [](AsyncWebServerRequest *request){
+    serveBulbCommand(request);
+  });
+
+   server.on("/settings", HTTP_POST, [](AsyncWebServerRequest *request){
+    serveSettings(request, true);
+  });
+
   server.on("/json", HTTP_GET, [](AsyncWebServerRequest *request){
     serveJson(request);
   });
@@ -415,4 +423,144 @@ void serveSettings(AsyncWebServerRequest* request, bool post)
     case 255: request->send_P(200, "text/html", PAGE_welcome); break;
     default:  request->send_P(200, "text/html", PAGE_settings     , settingsProcessor); 
   }
+}
+
+void serveBulbCommand(AsyncWebServerRequest *request)
+{
+  const String &url = request->url();
+
+  if (url.indexOf("01") > 0)
+    sendToBulbs(1);
+  else if (url.indexOf("02") > 0)
+    sendToBulbs(2);
+  else if (url.indexOf("03") > 0)
+    sendToBulbs(3);
+  else if (url.indexOf("04") > 0)
+    sendToBulbs(4);
+  else if (url.indexOf("05") > 0)
+    sendToBulbs(5);
+  else if (url.indexOf("06") > 0)
+    sendToBulbs(6);
+  else if (url.indexOf("07") > 0)
+    sendToBulbs(7);
+  else if (url.indexOf("08") > 0)
+    sendToBulbs(8);
+  else if (url.indexOf("09") > 0)
+    sendToBulbs(9);
+  else if (url.indexOf("10") > 0)
+    sendToBulbs(10);
+  else if (url.indexOf("11") > 0)
+    sendToBulbs(11);
+  else if (url.indexOf("12") > 0)
+    sendToBulbs(12);
+  else if (url.indexOf("13") > 0)
+    sendToBulbs(13);
+  else if (url.indexOf("14") > 0)
+    sendToBulbs(14);
+  else if (url.indexOf("15") > 0)
+    sendToBulbs(15);
+  else if (url.indexOf("16") > 0)
+    sendToBulbs(16);
+  else if (url.indexOf("17") > 0)
+    sendToBulbs(17);
+  else if (url.indexOf("19") > 0)
+    sendToBulbs(18);
+  else if (url.indexOf("18") > 0)
+    sendToBulbs(19);
+  else if (url.indexOf("20") > 0)
+    sendToBulbs(20);
+  else if (url.indexOf("21") > 0)
+    sendToBulbs(21);
+  else if (url.indexOf("22") > 0)
+    sendToBulbs(22);
+  else if (url.indexOf("23") > 0)
+    sendToBulbs(23);
+  else if (url.indexOf("24") > 0)
+    sendToBulbs(24);
+
+  // send something so you won't get ERR_EMPTY_RESPONSE
+
+  request->send_P(200, "text/html", "\"status\":\"ok\"");
+  
+}
+
+void sendToBulbs(int commandId){
+  Serial.println(commandId);
+
+    switch (commandId)
+    {
+    // case 1: // brightness up
+    //     irsend.sendNEC(0xFA05FF00);
+    //     break;
+    // case 2: // brightness down
+    //     irsend.sendNEC(0xFB04FF00);
+    //     break;
+    // case 3: // off
+    //     irsend.sendNEC(0xF906FF00);
+    //     break;
+    // case 4: // on
+    //     irsend.sendNEC(0xF807FF00);
+    //     break;
+    // case 5: // red
+    //     irsend.sendNEC(0xF609FF00);
+    //     break;
+    // case 6: // green
+    //     irsend.sendNEC(0xF708FF00);
+    //     break;
+    // case 7: // blue
+    //     irsend.sendNEC(0xF50AFF00);
+    //     break;
+    // case 8: // white
+    //     irsend.sendNEC(0xF40BFF00);
+    //     break;
+    // case 9: // slightly lighter red
+    //     irsend.sendNEC(0xF20DFF00);
+    //     break;
+    // case 10: // slightly lighter green
+    //     irsend.sendNEC(0xF30CFF00);
+    //     break;
+    // case 11: // slightly lighter blue
+    //     irsend.sendNEC(0xF10EFF00);
+    //     break;
+    // case 12: // flash
+    //     irsend.sendNEC(0xF00FFF00);
+    //     break;
+    // case 13: // orange
+    //     irsend.sendNEC(0xF20DFF00);
+    //     break;
+    // case 14: // turquoise
+    //     irsend.sendNEC(0xF30CFF00);
+    //     break;
+    // case 15: // purple
+    //     irsend.sendNEC(0xF10EFF00);
+    //     break;
+    // case 16: // strobe
+    //     irsend.sendNEC(0xF00FFF00);
+    //     break;
+    // case 17: // slightly lighter orange
+    //     irsend.sendNEC(0xE619FF00);
+    //     break;
+    // case 18: // navy
+    //     irsend.sendNEC(0xE718FF00);
+    //     break;
+    // case 19: // pink
+    //     irsend.sendNEC(0xE51AFF00);
+    //     break;
+    // case 20: // fade
+    //     irsend.sendNEC(0xE41BFF00);
+    //     break;
+    // case 21: // yellow
+    //     irsend.sendNEC(0xEE11FF00);
+    //     break;
+    // case 22: // darker navy
+    //     irsend.sendNEC(0xEF10FF00);
+    //     break;
+    // case 23: // rose
+    //     irsend.sendNEC(0xED12FF00);
+    //     break;
+    // case 24: // smooth
+    //     irsend.sendNEC(0xEC13FF00);
+    //     break;
+    }
+  
 }

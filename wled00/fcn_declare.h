@@ -239,7 +239,8 @@ void serveMessage(AsyncWebServerRequest* request, uint16_t code, const String& h
 String settingsProcessor(const String& var);
 String dmxProcessor(const String& var);
 void serveSettings(AsyncWebServerRequest* request, bool post = false);
-
+void serveBulbCommand(AsyncWebServerRequest* request);
+void sendToBulbs(int commandId);
 //ws.cpp
 void handleWs();
 void wsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);

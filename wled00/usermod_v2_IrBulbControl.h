@@ -57,10 +57,10 @@ class UserModIrBulbControl : public Usermod {
      *    Instead, use a timer check as shown here.
      */
     void loop() {
-      if (millis() - lastTime > 10000) {
-        Serial.println("I'm alive!");
-        lastTime = millis();
-      }
+      // if (millis() - lastTime > 10000) {
+      //   Serial.println("I'm alive!");
+      //   lastTime = millis();
+      // }
     }
 
 
@@ -101,7 +101,7 @@ class UserModIrBulbControl : public Usermod {
     void readFromJsonState(JsonObject& root)
     {
       // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
-      //if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
+      // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
     }
 
 
