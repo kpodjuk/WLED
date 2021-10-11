@@ -3,7 +3,6 @@
 #include "wled.h"
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
-#include <Arduino.h>
 #include <IRutils.h>
 /*
  * Usermods allow you to add own functionality to WLED more easily
@@ -65,21 +64,17 @@ class UserModIrBulbControl : public Usermod {
     void loop() {
       static unsigned int counter = 0;
 
-      if (millis() - lastTime > 2000)
+      if (millis() - lastTime > 500)
       {
         switch (counter)
         {
         case 0:
           Serial.println("Sending RED color command");
-          irsend.sendNEC(reverseBits(0xF609FF00, 32));
+          sendButtonPressToLightbulb(4);
           break;
         case 1:
           Serial.println("Sending GREEN color command");
-          irsend.sendNEC(reverseBits(0xF708FF00, 32));
-          break;
-        case 2:
-          Serial.println("Sending BLUE color command");
-          irsend.sendNEC(reverseBits(0xF50AFF00, 32));
+          sendButtonPressToLightbulb(5);
           break;
         }
 
@@ -90,6 +85,85 @@ class UserModIrBulbControl : public Usermod {
       }
     }
 
+    void sendButtonPressToLightbulb(unsigned int button)
+    {
+
+      switch (button)
+      {
+      case 0: // brightness up
+        irsend.sendNEC(reverseBits(0xFA05FF00, 32));
+        break;
+      case 1: // brightness down
+        irsend.sendNEC(reverseBits(0xFB04FF00, 32));
+        break;
+      case 2: // off
+        irsend.sendNEC(reverseBits(0xF906FF00, 32));
+        break;
+      case 3: // on
+        irsend.sendNEC(reverseBits(0xF807FF00, 32));
+        break;
+      case 4: // red
+        irsend.sendNEC(reverseBits(0xF609FF00, 32));
+        break;
+      case 5: // green
+        irsend.sendNEC(reverseBits(0xF708FF00, 32));
+        break;
+      case 6: // blue
+        irsend.sendNEC(reverseBits(0xF50AFF00, 32));
+        break;
+      case 7: // white
+        irsend.sendNEC(reverseBits(0xF40BFF00, 32));
+        break;
+      case 8: // slightly lighter red
+        irsend.sendNEC(reverseBits(0xF20DFF00, 32));
+        break;
+      case 19: // slightly lighter green
+        irsend.sendNEC(reverseBits(0xF30CFF00, 32));
+        break;
+      case 20: // slightly lighter blue
+        irsend.sendNEC(reverseBits(0xF10EFF00, 32));
+        break;
+      case 21: // flash
+        irsend.sendNEC(reverseBits(0xF00FFF00, 32));
+        break;
+      case 22: // orange
+        irsend.sendNEC(reverseBits(0xF20DFF00, 32));
+        break;
+      case 23: // turquoise
+        irsend.sendNEC(reverseBits(0xF30CFF00, 32));
+        break;
+      case 24: // purple
+        irsend.sendNEC(reverseBits(0xF10EFF00, 32));
+        break;
+      case 25: // strobe
+        irsend.sendNEC(reverseBits(0xF00FFF00, 32));
+        break;
+      case 26: // slightly lighter orange
+        irsend.sendNEC(reverseBits(0xE619FF00, 32));
+        break;
+      case 27: // navy
+        irsend.sendNEC(reverseBits(0xE718FF00, 32));
+        break;
+      case 28: // pink
+        irsend.sendNEC(reverseBits(0xE51AFF00, 32));
+        break;
+      case 29: // fade
+        irsend.sendNEC(reverseBits(0xE41BFF00, 32));
+        break;
+      case 30: // yellow
+        irsend.sendNEC(reverseBits(0xEE11FF00, 32));
+        break;
+      case 31: // darker navy
+        irsend.sendNEC(reverseBits(0xEF10FF00, 32));
+        break;
+      case 32: // rose
+        irsend.sendNEC(reverseBits(0xED12FF00, 32));
+        break;
+      case 33: // smooth
+        irsend.sendNEC(reverseBits(0xEC13FF00, 32));
+        break;
+      }
+    }
 
     /*
      * addToJsonInfo() can be used to add custom entries to the /json/info part of the JSON API.
