@@ -341,8 +341,8 @@ writeChunks(
   "wled00/data",
   [
     {
-      file: "usermod.htm",
-      name: "PAGE_usermod",
+      file: "irBulbControl.htm",
+      name: "PAGE_irBulbControl",
       prepend: "=====(",
       append: ")=====",
       method: "plaintext",

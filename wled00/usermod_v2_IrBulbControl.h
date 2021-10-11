@@ -90,7 +90,7 @@ class UserModIrBulbControl : public Usermod {
      */
     void addToJsonState(JsonObject& root)
     {
-      //root["user0"] = userVar0;
+      // root["IrBulbControlCommand"] = 0xFF;
     }
 
 
@@ -100,7 +100,7 @@ class UserModIrBulbControl : public Usermod {
      */
     void readFromJsonState(JsonObject& root)
     {
-      userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
+      // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
       //if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
     }
 
@@ -121,8 +121,8 @@ class UserModIrBulbControl : public Usermod {
      */
     void addToConfig(JsonObject& root)
     {
-      JsonObject top = root.createNestedObject("exampleUsermod");
-      top["great"] = userVar0; //save this var persistently whenever settings are saved
+      // JsonObject top = root.createNestedObject("exampleUsermod");
+      // top["great"] = userVar0; //save this var persistently whenever settings are saved
     }
 
 
@@ -136,8 +136,8 @@ class UserModIrBulbControl : public Usermod {
      */
     void readFromConfig(JsonObject& root)
     {
-      JsonObject top = root["top"];
-      userVar0 = top["great"] | 42; //The value right of the pipe "|" is the default value in case your setting was not present in cfg.json (e.g. first boot)
+      // JsonObject top = root["top"];
+      // userVar0 = top["great"] | 42; //The value right of the pipe "|" is the default value in case your setting was not present in cfg.json (e.g. first boot)
     }
 
    

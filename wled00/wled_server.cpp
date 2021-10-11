@@ -114,8 +114,8 @@ void initServer()
     request->send(200, "text/plain", (String)ESP.getFreeHeap());
     });
   
-  server.on("/u", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", PAGE_usermod);
+  server.on("/irBulbControl", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", PAGE_irBulbControl);
     });
     
   server.on("/url", HTTP_GET, [](AsyncWebServerRequest *request){
