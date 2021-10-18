@@ -158,6 +158,43 @@
     <!-- <button class="btn infobtn" onclick="sendIrCommand()">Send Command</button> -->
 </body>
 <script>
+    var loc = false;
+    function requestJson(command, rinfo = true, verbose = true) {
+        var url = rinfo ? '/json/si' : (command ? '/json/state' : '/json');
+        // if (loc) {
+        // 	url = `http://${locip}${url}`;
+        // }
+
+        var type = command ? 'post' : 'get';
+        if (command) {
+            command.v = verbose;
+            command.time = Math.floor(Date.now() / 1000);
+            req = JSON.stringify(command);
+            //console.log(req);
+        }
+        fetch
+            (url, {
+                method: type,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                },
+                body: req
+            })
+            .then(res => {
+                if (!res.ok) {
+                    // showErrorToast();
+                }
+                return res.json();
+            })
+            .then(json => {
+                if (json.success) {
+                    return;
+                }
+            });
+
+    }
+
+
     function sendIrCommand(command) {
         switch (command) {
             case "color":  // sometimes you have to get it from <select>
@@ -166,33 +203,16 @@
             case "effect":
                 irCommand = document.getElementById('selectedEffect').value;
                 break;
-            // case "nochange": // don't send anything, command = -1
-            //     irCommand = "-1";
-            //     break;
             default: // command is actually real command id as is
                 irCommand = command;
                 break;
         }
 
-        // if (irCommand != "-1") {
-        var xhr = new XMLHttpRequest();
-        var url = "/bulbCommand/" + irCommand;
-        xhr.open("POST", url, true);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        // xhr.onreadystatechange = function () {
-        //     if (xhr.readyState === 4 && xhr.status === 200) {
-        //         // var json = JSON.parse(xhr.responseText);
-        //         // console.log("Got JSON response=" + xhr.responseText);
-        //         // console.log(json.email + ", " + json.password);
-        //     }
-        // };
-        var data = JSON.stringify(
-            {
-                "status": "ok",
-            }
-        );
-        xhr.send(data);
-        // }
+        var obj = { "bulbCommand": irCommand };
+        console.log(obj);
+        requestJson(obj);
+
+
     }
 
     function bodyLoaded() {
