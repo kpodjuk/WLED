@@ -109,7 +109,73 @@ public:
   void addToJsonState(JsonObject &root)
   {
     // root["IrBulbControlCommand"] = 0xFF;
+
   }
+
+
+  String closestColor(int r, int g, int b)
+  {
+  const int distinctRGB[22][3] = {
+      {255, 255, 255},
+      {0, 0, 0},
+      {128, 0, 0},
+      {255, 0, 0},
+      {255, 200, 220},
+      {170, 110, 40},
+      {255, 150, 0},
+      {255, 215, 180},
+      {128, 128, 0},
+      {255, 235, 0},
+      {255, 250, 200},
+      {190, 255, 0},
+      {0, 190, 0},
+      {170, 255, 195},
+      {0, 0, 128},
+      {100, 255, 255},
+      {0, 0, 128},
+      {67, 133, 255},
+      {130, 0, 150},
+      {230, 190, 255},
+      {255, 0, 255},
+      {128, 128, 128}};
+  const String distinctColors[22] =
+      {"white",
+       "black",
+       "maroon",
+       "red",
+       "pink",
+       "brown",
+       "orange",
+       "coral",
+       "olive",
+       "yellow",
+       "beige",
+       "lime",
+       "green",
+       "mint", "teal",
+       "cyan",
+       "navy",
+       "blue",
+       "purple",
+       "lavender",
+       "magenta",
+       "grey"};
+
+
+
+    String colorReturn = "NA";
+    int biggestDifference = 1000;
+    for (int i = 0; i < 22; i++)
+    {
+      if (sqrt(pow(r - distinctRGB[i][0], 2) + pow(g - distinctRGB[i][1], 2) + pow(b - distinctRGB[i][2], 2)) < biggestDifference)
+      {
+        colorReturn = distinctColors[i];
+        biggestDifference = sqrt(pow(r - distinctRGB[i][0], 2) + pow(g - distinctRGB[i][1], 2) + pow(b - distinctRGB[i][2], 2));
+      }
+    }
+    return colorReturn;
+}
+
 
   /*
      * readFromJsonState() can be used to receive data clients send to the /json/state part of the JSON API (state object).
@@ -119,6 +185,34 @@ public:
   {
     // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
     // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
+
+    uint8_t red = root["seg"]["col"][0][0]; // segment 0 id 0 color 0
+    uint8_t green = root["seg"]["col"][0][1];
+    uint8_t blue = root["seg"]["col"][0][2];
+// StaticJsonBuffer<200> jsonBuffer;
+// root = jsonBuffer.createObject();
+    Serial.println(closestColor(red, green, blue));
+
+  // StaticJsonDocument<100> testDocument;
+
+
+    // root.printTo(Serial);
+  // char buffer[500];
+
+  // serializeJsonPretty(red, buffer);
+
+// Serial.println(buffer);
+    // Serial.print(serializeJsonPretty(root.));
+    // Serial.println("#################");
+    // serializeJsonPretty(root, Serial);
+    // Serial.println("#################");
+
+    // serializeJsonPretty(root["seg"]["col"][0][0], Serial);
+    // Serial.printf("R:%i", red);
+    // Serial.printf(" G:%i", green);
+    // Serial.printf(" B:%i", blue);
+    // Serial.printf("\n", blue);
+
   }
 
   /*
