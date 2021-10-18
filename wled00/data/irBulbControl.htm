@@ -106,8 +106,8 @@
         <option value="03" disabled="disabled">--------------</option>
 
         <option value="23">Light Purple</option>
-        <!-- <option value="15">Purple</option> -->
-        <option value="18">Purple</option>
+        <option value="15">Purple</option>
+        <!-- <option value="18">Purple</option> -->
         <option value="11">Dark Purple</option>
 
         <option value="03" disabled="disabled">--------------</option>
@@ -183,6 +183,7 @@
             .then(res => {
                 if (!res.ok) {
                     // showErrorToast();
+                    console.log("Error when sending json")
                 }
                 return res.json();
             })

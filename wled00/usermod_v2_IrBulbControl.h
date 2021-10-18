@@ -113,55 +113,40 @@ public:
 
   String closestColor(int r, int g, int b)
   {
-    const int distinctRGB[22][3] = {
-        {255, 255, 255},
-        {0, 0, 0},
-        {128, 0, 0},
-        {255, 0, 0},
-        {255, 200, 220},
-        {170, 110, 40},
-        {255, 150, 0},
-        {255, 215, 180},
-        {128, 128, 0},
-        {255, 235, 0},
-        {255, 250, 200},
-        {190, 255, 0},
-        {0, 190, 0},
-        {170, 255, 195},
-        {0, 0, 128},
-        {100, 255, 255},
-        {0, 0, 128},
-        {67, 133, 255},
-        {130, 0, 150},
-        {230, 190, 255},
-        {255, 0, 255},
-        {128, 128, 128}};
-    const String distinctColors[22] =
-        {"white",
-         "black",
-         "maroon",
-         "red",
-         "pink",
-         "brown",
-         "orange",
-         "coral",
-         "olive",
-         "yellow",
-         "beige",
-         "lime",
-         "green",
-         "mint", "teal",
-         "cyan",
-         "navy",
-         "blue",
+    const int distinctRGB[14][3] = {
+        {0, 0, 0}, // black
+        {255, 255, 255}, // white
+        {186, 3, 252}, // light_purple
+        {133, 0, 181}, // purple
+        {89, 0, 140}, // dark_purple
+        {30, 255, 0}, // light green
+        {0, 156, 13}, // green
+        {0, 106, 227}, // light_blue
+        {25, 25, 196}, // blue
+        {0, 0, 255}, // dark_blue
+        {255, 221, 0}, // light_yellow
+        {255, 208, 0}, // yellow
+        {255, 162, 0}, // dark yellow
+        {255, 0, 0} // red
+        };
+    const String distinctColors[14] =
+        {"black",
+         "white",
+         "light_purple",
          "purple",
-         "lavender",
-         "magenta",
-         "grey"};
-
+         "dark_purple",
+         "light_green",
+         "green",
+         "light_blue",
+         "blue",
+         "dark_blue",
+         "light_yellow",
+         "yellow",
+         "dark_yellow",
+         "red"};
     String colorReturn = "NA";
     int biggestDifference = 1000;
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 14; i++)
     {
       if (sqrt(pow(r - distinctRGB[i][0], 2) + pow(g - distinctRGB[i][1], 2) + pow(b - distinctRGB[i][2], 2)) < biggestDifference)
       {
@@ -185,12 +170,71 @@ public:
     uint8_t green = root["seg"]["col"][0][1];
     uint8_t blue = root["seg"]["col"][0][2];
 
+    // Serial.printf("R:%i", red);
+    // Serial.printf(" G:%i", green);
+    // Serial.printf(" B:%i\n", blue);
+
     uint8_t bulbCommand = root["bulbCommand"];
 
-    serializeJsonPretty(root, Serial);
+    if(bulbCommand)
+    { // serve bulb commands
+      Serial.println("Sending bulbCommand");
     Serial.println(bulbCommand);
-
     sendButtonPressToLightbulb(bulbCommand);
+
+    } else { // serve finding closest color
+      Serial.println("Found closest color:");
+    String distinctColor = closestColor(red, green, blue);
+    Serial.println(distinctColor);
+    
+    // send buttonpresses according to found color
+    if(distinctColor == "black"){
+
+    sendButtonPressToLightbulb(3);
+
+    } else if (distinctColor == "white"){
+    sendButtonPressToLightbulb(8);
+
+    } else if (distinctColor == "light_purple"){
+    sendButtonPressToLightbulb(23);
+
+    } else if (distinctColor == "purple"){
+    sendButtonPressToLightbulb(15);
+
+    } else if (distinctColor == "dark_purple"){
+    sendButtonPressToLightbulb(11);
+
+    } else if (distinctColor == "light_green"){
+    sendButtonPressToLightbulb(10);
+
+    } else if (distinctColor == "green"){
+    sendButtonPressToLightbulb(6);
+
+    } else if (distinctColor == "light_blue"){
+    sendButtonPressToLightbulb(19);
+
+    } else if (distinctColor == "blue"){
+    sendButtonPressToLightbulb(22);
+
+    } else if (distinctColor == "dark_blue"){
+    sendButtonPressToLightbulb(7);
+
+    } else if (distinctColor == "light_yellow"){
+    sendButtonPressToLightbulb(21);
+
+    } else if (distinctColor == "yellow"){
+    sendButtonPressToLightbulb(17);
+
+    } else if (distinctColor == "dark_yellow"){
+    sendButtonPressToLightbulb(9);
+
+    } else if (distinctColor == "red"){
+    sendButtonPressToLightbulb(5);
+
+    }
+    // serializeJsonPretty(root, Serial);
+  }
+
 
     // root.printTo(Serial);
     // char buffer[500];
@@ -204,9 +248,7 @@ public:
     // Serial.println("#################");
 
     // serializeJsonPretty(root["seg"]["col"][0][0], Serial);
-    // Serial.printf("R:%i", red);
-    // Serial.printf(" G:%i", green);
-    // Serial.printf(" B:%i", blue);
+
     // Serial.printf("\n", blue);
   }
 
@@ -342,5 +384,3 @@ void sendButtonPressToLightbulb(unsigned int button)
     break;
   }
 }
-
-

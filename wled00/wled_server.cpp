@@ -79,9 +79,9 @@ void initServer()
     serveSettings(request, true);
   });
 
-  server.on("/bulbCommand", HTTP_POST, [](AsyncWebServerRequest *request){
-    serveBulbCommand(request);
-  });
+  // server.on("/bulbCommand", HTTP_POST, [](AsyncWebServerRequest *request){
+  //   serveBulbCommand(request);
+  // });
 
    server.on("/settings", HTTP_POST, [](AsyncWebServerRequest *request){
     serveSettings(request, true);
@@ -426,60 +426,60 @@ void serveSettings(AsyncWebServerRequest* request, bool post)
   }
 }
 
-void serveBulbCommand(AsyncWebServerRequest *request)
-{
-  const String &url = request->url();
+// void serveBulbCommand(AsyncWebServerRequest *request)
+// {
+//   const String &url = request->url();
 
-  if (url.indexOf("01") > 0)
-    sendButtonPressToLightbulb(1);
-  else if (url.indexOf("02") > 0)
-    sendButtonPressToLightbulb(2);
-  else if (url.indexOf("03") > 0)
-    sendButtonPressToLightbulb(3);
-  else if (url.indexOf("04") > 0)
-    sendButtonPressToLightbulb(4);
-  else if (url.indexOf("05") > 0)
-    sendButtonPressToLightbulb(5);
-  else if (url.indexOf("06") > 0)
-    sendButtonPressToLightbulb(6);
-  else if (url.indexOf("07") > 0)
-    sendButtonPressToLightbulb(7);
-  else if (url.indexOf("08") > 0)
-    sendButtonPressToLightbulb(8);
-  else if (url.indexOf("09") > 0)
-    sendButtonPressToLightbulb(9);
-  else if (url.indexOf("10") > 0)
-    sendButtonPressToLightbulb(10);
-  else if (url.indexOf("11") > 0)
-    sendButtonPressToLightbulb(11);
-  else if (url.indexOf("12") > 0)
-    sendButtonPressToLightbulb(12);
-  else if (url.indexOf("13") > 0)
-    sendButtonPressToLightbulb(13);
-  else if (url.indexOf("14") > 0)
-    sendButtonPressToLightbulb(14);
-  else if (url.indexOf("15") > 0)
-    sendButtonPressToLightbulb(15);
-  else if (url.indexOf("16") > 0)
-    sendButtonPressToLightbulb(16);
-  else if (url.indexOf("17") > 0)
-    sendButtonPressToLightbulb(17);
-  else if (url.indexOf("19") > 0)
-    sendButtonPressToLightbulb(18);
-  else if (url.indexOf("18") > 0)
-    sendButtonPressToLightbulb(19);
-  else if (url.indexOf("20") > 0)
-    sendButtonPressToLightbulb(20);
-  else if (url.indexOf("21") > 0)
-    sendButtonPressToLightbulb(21);
-  else if (url.indexOf("22") > 0)
-    sendButtonPressToLightbulb(22);
-  else if (url.indexOf("23") > 0)
-    sendButtonPressToLightbulb(23);
-  else if (url.indexOf("24") > 0)
-    sendButtonPressToLightbulb(24);
+//   if (url.indexOf("01") > 0)
+//     sendButtonPressToLightbulb(1);
+//   else if (url.indexOf("02") > 0)
+//     sendButtonPressToLightbulb(2);
+//   else if (url.indexOf("03") > 0)
+//     sendButtonPressToLightbulb(3);
+//   else if (url.indexOf("04") > 0)
+//     sendButtonPressToLightbulb(4);
+//   else if (url.indexOf("05") > 0)
+//     sendButtonPressToLightbulb(5);
+//   else if (url.indexOf("06") > 0)
+//     sendButtonPressToLightbulb(6);
+//   else if (url.indexOf("07") > 0)
+//     sendButtonPressToLightbulb(7);
+//   else if (url.indexOf("08") > 0)
+//     sendButtonPressToLightbulb(8);
+//   else if (url.indexOf("09") > 0)
+//     sendButtonPressToLightbulb(9);
+//   else if (url.indexOf("10") > 0)
+//     sendButtonPressToLightbulb(10);
+//   else if (url.indexOf("11") > 0)
+//     sendButtonPressToLightbulb(11);
+//   else if (url.indexOf("12") > 0)
+//     sendButtonPressToLightbulb(12);
+//   else if (url.indexOf("13") > 0)
+//     sendButtonPressToLightbulb(13);
+//   else if (url.indexOf("14") > 0)
+//     sendButtonPressToLightbulb(14);
+//   else if (url.indexOf("15") > 0)
+//     sendButtonPressToLightbulb(15);
+//   else if (url.indexOf("16") > 0)
+//     sendButtonPressToLightbulb(16);
+//   else if (url.indexOf("17") > 0)
+//     sendButtonPressToLightbulb(17);
+//   else if (url.indexOf("19") > 0)
+//     sendButtonPressToLightbulb(18);
+//   else if (url.indexOf("18") > 0)
+//     sendButtonPressToLightbulb(19);
+//   else if (url.indexOf("20") > 0)
+//     sendButtonPressToLightbulb(20);
+//   else if (url.indexOf("21") > 0)
+//     sendButtonPressToLightbulb(21);
+//   else if (url.indexOf("22") > 0)
+//     sendButtonPressToLightbulb(22);
+//   else if (url.indexOf("23") > 0)
+//     sendButtonPressToLightbulb(23);
+//   else if (url.indexOf("24") > 0)
+//     sendButtonPressToLightbulb(24);
 
-  // send something so you won't get ERR_EMPTY_RESPONSE
+//   // send something so you won't get ERR_EMPTY_RESPONSE
 
-  request->send_P(200, "text/html", "\"status\":\"ok\"");
-}
+//   request->send_P(200, "text/html", "\"status\":\"ok\"");
+// }
