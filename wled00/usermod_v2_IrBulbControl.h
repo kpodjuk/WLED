@@ -114,21 +114,21 @@ public:
   String closestColor(int r, int g, int b)
   {
     const int distinctRGB[14][3] = {
-        {0, 0, 0}, // black
+        {0, 0, 0},       // black
         {255, 255, 255}, // white
-        {186, 3, 252}, // light_purple
-        {133, 0, 181}, // purple
-        {89, 0, 140}, // dark_purple
-        {30, 255, 0}, // light green
-        {0, 156, 13}, // green
-        {0, 106, 227}, // light_blue
-        {25, 25, 196}, // blue
-        {0, 0, 255}, // dark_blue
-        {255, 221, 0}, // light_yellow
-        {255, 208, 0}, // yellow
-        {255, 162, 0}, // dark yellow
-        {255, 0, 0} // red
-        };
+        {186, 3, 252},   // light_purple
+        {133, 0, 181},   // purple
+        {89, 0, 140},    // dark_purple
+        {30, 255, 0},    // light green
+        {0, 156, 13},    // green
+        {0, 106, 227},   // light_blue
+        {25, 25, 196},   // blue
+        {0, 0, 255},     // dark_blue
+        {255, 221, 0},   // light_yellow
+        {255, 208, 0},   // yellow
+        {255, 162, 0},   // dark yellow
+        {255, 0, 0}      // red
+    };
     const String distinctColors[14] =
         {"black",
          "white",
@@ -163,93 +163,109 @@ public:
    */
   void readFromJsonState(JsonObject &root)
   {
+
+    static bool globalAutoColor = false;
+
     // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
     // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
-
-    uint8_t red = root["seg"]["col"][0][0]; // segment 0 id 0 color 0
-    uint8_t green = root["seg"]["col"][0][1];
-    uint8_t blue = root["seg"]["col"][0][2];
 
     // Serial.printf("R:%i", red);
     // Serial.printf(" G:%i", green);
     // Serial.printf(" B:%i\n", blue);
 
-    uint8_t bulbCommand = root["bulbCommand"];
-
-    if(bulbCommand)
+    uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
+    if (bulbCommand)
     { // serve bulb commands
       Serial.println("Sending bulbCommand");
-    Serial.println(bulbCommand);
-    sendButtonPressToLightbulb(bulbCommand);
-
-    } else { // serve finding closest color
-      Serial.println("Found closest color:");
-    String distinctColor = closestColor(red, green, blue);
-    Serial.println(distinctColor);
-    
-    // send buttonpresses according to found color
-    if(distinctColor == "black"){
-
-    sendButtonPressToLightbulb(3);
-
-    } else if (distinctColor == "white"){
-    sendButtonPressToLightbulb(8);
-
-    } else if (distinctColor == "light_purple"){
-    sendButtonPressToLightbulb(23);
-
-    } else if (distinctColor == "purple"){
-    sendButtonPressToLightbulb(15);
-
-    } else if (distinctColor == "dark_purple"){
-    sendButtonPressToLightbulb(11);
-
-    } else if (distinctColor == "light_green"){
-    sendButtonPressToLightbulb(10);
-
-    } else if (distinctColor == "green"){
-    sendButtonPressToLightbulb(6);
-
-    } else if (distinctColor == "light_blue"){
-    sendButtonPressToLightbulb(19);
-
-    } else if (distinctColor == "blue"){
-    sendButtonPressToLightbulb(22);
-
-    } else if (distinctColor == "dark_blue"){
-    sendButtonPressToLightbulb(7);
-
-    } else if (distinctColor == "light_yellow"){
-    sendButtonPressToLightbulb(21);
-
-    } else if (distinctColor == "yellow"){
-    sendButtonPressToLightbulb(17);
-
-    } else if (distinctColor == "dark_yellow"){
-    sendButtonPressToLightbulb(9);
-
-    } else if (distinctColor == "red"){
-    sendButtonPressToLightbulb(5);
-
+      Serial.println(bulbCommand);
+      sendButtonPressToLightbulb(bulbCommand);
     }
-    // serializeJsonPretty(root, Serial);
+
+    if (root["autoColor"] == "ON") // serve autocolor on/off
+    {
+      globalAutoColor = true;
+    }
+    else if (root["autoColor"] == "OFF")
+    {
+      globalAutoColor = false;
+    }
+
+    if (globalAutoColor)
+    {
+      serveClosestColor(root);
+    }
   }
 
+  void serveClosestColor(JsonObject &root)
+  {
 
-    // root.printTo(Serial);
-    // char buffer[500];
+    uint8_t red = root["seg"]["col"][0][0]; // segment 0 id 0 color 0
+    uint8_t green = root["seg"]["col"][0][1];
+    uint8_t blue = root["seg"]["col"][0][2];
 
-    // serializeJsonPretty(red, buffer);
+    // serve finding closest color
+    Serial.println("Found closest color:");
+    String distinctColor = closestColor(red, green, blue);
+    Serial.println(distinctColor);
 
-    // Serial.println(buffer);
-    // Serial.print(serializeJsonPretty(root.));
-    // Serial.println("#################");
-    // serializeJsonPretty(root, Serial);
-    // Serial.println("#################");
+    // send buttonpresses according to found color
+    if (distinctColor == "black")
+    {
 
-    // serializeJsonPretty(root["seg"]["col"][0][0], Serial);
-
-    // Serial.printf("\n", blue);
+      sendButtonPressToLightbulb(3);
+    }
+    else if (distinctColor == "white")
+    {
+      sendButtonPressToLightbulb(8);
+    }
+    else if (distinctColor == "light_purple")
+    {
+      sendButtonPressToLightbulb(23);
+    }
+    else if (distinctColor == "purple")
+    {
+      sendButtonPressToLightbulb(15);
+    }
+    else if (distinctColor == "dark_purple")
+    {
+      sendButtonPressToLightbulb(11);
+    }
+    else if (distinctColor == "light_green")
+    {
+      sendButtonPressToLightbulb(10);
+    }
+    else if (distinctColor == "green")
+    {
+      sendButtonPressToLightbulb(6);
+    }
+    else if (distinctColor == "light_blue")
+    {
+      sendButtonPressToLightbulb(19);
+    }
+    else if (distinctColor == "blue")
+    {
+      sendButtonPressToLightbulb(22);
+    }
+    else if (distinctColor == "dark_blue")
+    {
+      sendButtonPressToLightbulb(7);
+    }
+    else if (distinctColor == "light_yellow")
+    {
+      sendButtonPressToLightbulb(21);
+    }
+    else if (distinctColor == "yellow")
+    {
+      sendButtonPressToLightbulb(17);
+    }
+    else if (distinctColor == "dark_yellow")
+    {
+      sendButtonPressToLightbulb(9);
+    }
+    else if (distinctColor == "red")
+    {
+      sendButtonPressToLightbulb(5);
+    }
   }
 
   /*
