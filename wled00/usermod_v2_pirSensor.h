@@ -7,6 +7,8 @@
 class UsermodPirSensor : public Usermod
 {
 private:
+  const bool disablePirSensorMonitoring = false; // disables pir sensor whole functionality
+
   uint32_t previousCheckTime;
   uint32_t currentCheckTime;
 
@@ -58,7 +60,14 @@ public:
 
   void loop()
   {
-    checkPirSensorPeriodically();
+    if (disablePirSensorMonitoring)
+    {
+      // disabled...
+    }
+    else
+    {
+      checkPirSensorPeriodically();
+    }
   }
 
   // check pir sensor state and apply preset
