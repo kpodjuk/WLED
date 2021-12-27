@@ -31,11 +31,17 @@ class UserModIrBulbControl : public Usermod
 {
 private:
   // Private class members. You can declare variables and functions only accessible to your usermod here
-  unsigned long lastTime = 0;
+
+  bool globalAutoColor = false; // should auto color approximation be turned on by default?
+  int32_t previousCommandRepeat;
+  int32_t currentCommandRepeat;
+  uint8_t lastCommand;
 
   // *********** CONSTANTS ***********
-  const uint8_t repeats = 2;    // how many times to repeat communication of each command, for better reliabilty
-  bool globalAutoColor = false; // should auto color approximation be turned on by default?
+  const uint8_t repeats = 2;                      // how many times to repeat communication of each command, for better reliabilty
+  const bool makeSureCommandsAreReceived = false; // should last command be repeated once every X ms?
+  // not sure if this is safe ☝️👆
+  const int16_t commandRepeatInterval_ms = 2000;  // how many ms to wait before repeating command
 
   // For color approximation: Which colors you have on buttons
   const int distinctRGB[14][3] = {
@@ -108,16 +114,17 @@ public:
    */
   void loop()
   {
-    // static int previousEvent;
-    // int currentEvent = millis();
-    // int delay = 5000;
-
-    // if(currentEvent- previousEvent > delay){
-    //   previousEvent = currentEvent;
-    //   sendButtonPressToLightbulb(4); // Turn on at the very beggining
-    // } else {
-    // }
-
+    // repeat last command from time to time
+    if (makeSureCommandsAreReceived)
+    {
+      currentCommandRepeat = millis();
+      if (currentCommandRepeat - previousCommandRepeat > commandRepeatInterval_ms)
+      {
+        previousCommandRepeat = currentCommandRepeat;
+        // Serial.printf("Repeating cmd ID=%i\n", lastCommand);
+        sendButtonPressToLightbulb(lastCommand);
+      }
+    }
   }
 
   /*
@@ -317,9 +324,7 @@ public:
     return USERMOD_ID_EXAMPLE;
   }
 
-  // additional methods go here:
-
-  void sendButtonPressToLightbulb(unsigned int button)
+  void sendButtonPressToLightbulb(uint8_t button)
   {
     // Serial.printf("Sending ID=%i to bulb\n", button);
 
@@ -398,5 +403,7 @@ public:
       irsend.sendNEC(reverseBits(0xEC13FF00, 32), 32, repeats);
       break;
     }
+    // save last command
+    lastCommand = button;
   }
 };

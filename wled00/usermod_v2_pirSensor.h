@@ -53,7 +53,7 @@ public:
   {
 #ifdef DEBUG_PIR_SENSOR
     Serial.println("WIFI CONNECTED!");
-    #endif
+#endif
   }
 
   void loop()
@@ -127,13 +127,13 @@ public:
 
   void applyPresetIfNeeded(uint16_t preset)
   {
-    currentPreset = preset;
-    if (currentPreset != previousPreset)
+    if (preset != previousPreset)
     {
       // Serial.printf("!!!!!! ACTUALLY CHANGED PRESET NOW, PRESET CHANGED TO:%i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n", currentPreset);
-      applyPreset(currentPreset);
+      // Serial.println("PirSensor applying preset");
+      applyPreset(preset);
     }
-    previousPreset = currentPreset;
+    previousPreset = preset;
   }
 
   /*

@@ -11,19 +11,19 @@ body{font-family:Verdana,sans-serif;text-align:center;background:#222;color:#fff
 </style></head><body onload="bodyLoaded()"><h1 style="padding-top:20px">
 Choose a color:</h1><select name="selectedColor" id="selectedColor" size="20" 
 class=""><option value="04">TEMP: TURN ON</option><option value="03" 
-selected="selected">Black</option><option value="03" disabled="disabled">
---------------</option><option value="08">White</option><option value="03" 
-disabled="disabled">--------------</option><option value="23">Light Purple
-</option><option value="15">Purple</option><option value="11">Dark Purple
-</option><option value="03" disabled="disabled">--------------</option><option 
-value="10">Light Green</option><option value="06">Green</option><option 
-value="03" disabled="disabled">--------------</option><option value="19">
-Light Blue</option><option value="22">Blue</option><option value="07">Dark Blue
-</option><option value="03" disabled="disabled">--------------</option><option 
-value="21">Light Yellow</option><option value="17">Yellow</option><option 
-value="09">Dark Yellow</option><option value="03" disabled="disabled">
---------------</option><option value="05">Red</option></select><h1 
-style="padding-top:20px">Settings:</h1><button 
+selected="selected">TEMP: TURN OFF</option><option value="03" 
+disabled="disabled">--------------</option><option value="08">White</option>
+<option value="03" disabled="disabled">--------------</option><option 
+value="23">Light Purple</option><option value="15">Purple</option><option 
+value="11">Dark Purple</option><option value="03" disabled="disabled">
+--------------</option><option value="10">Light Green</option><option 
+value="06">Green</option><option value="03" disabled="disabled">--------------
+</option><option value="19">Light Blue</option><option value="22">Blue</option>
+<option value="07">Dark Blue</option><option value="03" disabled="disabled">
+--------------</option><option value="21">Light Yellow</option><option 
+value="17">Yellow</option><option value="09">Dark Yellow</option><option 
+value="03" disabled="disabled">--------------</option><option value="05">Red
+</option></select><h1 style="padding-top:20px">Settings:</h1><button 
 class="btn infobtn brightnessButton" id="" onclick='sendIrCommand("01")'>
 Brightness Up &#127774;</button><br><button 
 class="btn infobtn brightnessButton" id="" onclick='sendIrCommand("02")'>
