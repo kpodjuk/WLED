@@ -208,9 +208,9 @@ public:
     uint8_t blue = root["seg"]["col"][0][2];
 
     // serve finding closest color
-    Serial.println("Found closest color:");
+    // Serial.println("Found closest color:");
     String distinctColor = closestColor(red, green, blue);
-    Serial.println(distinctColor);
+    // Serial.println(distinctColor);
 
     // send buttonpresses according to found color
     if (distinctColor == "black")
