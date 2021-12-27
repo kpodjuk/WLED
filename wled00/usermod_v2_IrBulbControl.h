@@ -321,7 +321,7 @@ public:
 
   void sendButtonPressToLightbulb(unsigned int button)
   {
-    Serial.printf("last method before library, sending=%i\n", button);
+    // Serial.printf("Sending ID=%i to bulb\n", button);
 
     switch (button)
     {

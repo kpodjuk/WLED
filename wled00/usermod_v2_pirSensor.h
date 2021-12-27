@@ -2,6 +2,8 @@
 
 #include "wled.h"
 
+// #define DEBUG_PIR_SENSOR
+
 class UsermodPirSensor : public Usermod
 {
 private:
@@ -25,8 +27,10 @@ private:
   const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface
   const uint16_t presetWhenNoMovementDetected = 2;
 
-  // debug var
-  // int resultingPreset;
+// debug var
+#ifdef DEBUG_PIR_SENSOR
+  int resultingPreset;
+#endif
 
 public:
   UsermodPirSensor() : previousCheckTime(0),
@@ -47,7 +51,9 @@ public:
 
   void connected()
   {
-    // Serial.println("WIFI CONNECTED!");
+#ifdef DEBUG_PIR_SENSOR
+    Serial.println("WIFI CONNECTED!");
+    #endif
   }
 
   void loop()
@@ -62,7 +68,6 @@ public:
     if (currentCheckTime - previousCheckTime > checkFrequencyMs)
     {
       previousCheckTime = currentCheckTime;
-      // run state machine every x milliseconds
       checkSensorState();
     }
     else
@@ -84,12 +89,16 @@ public:
         keepMovementFlag = true; // set flag to wait with going back to non movement state
         keepMovementCounter = 0; // reset counter
         applyPresetIfNeeded(presetWhenMovementDetected);
-        // resultingPreset = 1;
+#ifdef DEBUG_PIR_SENSOR
+        resultingPreset = 1;
+#endif
       }
       else if (currentPinState == LOW)
       {
         applyPresetIfNeeded(presetWhenNoMovementDetected);
-        // resultingPreset = 0;
+#ifdef DEBUG_PIR_SENSOR
+        resultingPreset = 0;
+#endif
       }
     }
 
@@ -111,7 +120,9 @@ public:
       checkAnywaysFlag = true;
     }
     // Debug print
-    // Serial.printf("pinState=%i\tkeepMovementCounter=%i\tkeepMovementFlag=%i\toutput(0-no mov)=%i\n", currentPinState, keepMovementCounter, keepMovementFlag, resultingPreset);
+#ifdef DEBUG_PIR_SENSOR
+    Serial.printf("pinState=%i\tkeepMovementCounter=%i\tkeepMovementFlag=%i\toutput(0-no mov)=%i\n", currentPinState, keepMovementCounter, keepMovementFlag, resultingPreset);
+#endif
   }
 
   void applyPresetIfNeeded(uint16_t preset)
