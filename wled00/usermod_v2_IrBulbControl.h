@@ -168,7 +168,7 @@ public:
   void readFromJsonState(JsonObject &root)
   {
 
-    static bool globalAutoColor = true;
+    static bool globalAutoColor = false;
 
     // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
     // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
