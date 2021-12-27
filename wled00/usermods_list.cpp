@@ -10,6 +10,7 @@
  * \/ \/ \/
  */
 #include "usermod_v2_IrBulbControl.h"
+#include "usermod_v2_pirSensor.h"
 #ifdef USERMOD_DALLASTEMPERATURE
 #include "../usermods/Temperature/usermod_temperature.h"
 #endif
@@ -53,7 +54,8 @@ void registerUsermods()
    * \/ \/ \/
    */
   usermods.add(new UserModIrBulbControl());
-  
+  usermods.add(new UsermodPirSensor());
+
   #ifdef USERMOD_DALLASTEMPERATURE
   usermods.add(new UsermodTemperature());
   #endif

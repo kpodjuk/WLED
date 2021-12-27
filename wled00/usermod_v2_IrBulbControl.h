@@ -42,7 +42,7 @@ public:
    */
   void setup()
   {
-    Serial.println("Hello from UserModIrBulbControl!");
+    // Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
     sendButtonPressToLightbulb(3); // Turn off at the very beggining
   }
@@ -53,7 +53,7 @@ public:
    */
   void connected()
   {
-    Serial.println("Connected to WiFi!");
+    // Serial.println("Connected to WiFi!");
   }
 
   /*
@@ -113,6 +113,7 @@ public:
 
   String closestColor(int r, int g, int b)
   {
+    // Which colors you have on buttons
     const int distinctRGB[14][3] = {
         {0, 0, 0},       // black
         {255, 255, 255}, // white
@@ -129,8 +130,10 @@ public:
         {255, 162, 0},   // dark yellow
         {255, 0, 0}      // red
     };
+    // Which strings will be the output
     const String distinctColors[14] =
-        {"black",
+        {
+        "black",
          "white",
          "light_purple",
          "purple",
@@ -143,7 +146,8 @@ public:
          "light_yellow",
          "yellow",
          "dark_yellow",
-         "red"};
+         "red"
+         };
     String colorReturn = "NA";
     int biggestDifference = 1000;
     for (int i = 0; i < 14; i++)
@@ -164,7 +168,7 @@ public:
   void readFromJsonState(JsonObject &root)
   {
 
-    static bool globalAutoColor = false;
+    static bool globalAutoColor = true;
 
     // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
     // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
@@ -176,8 +180,8 @@ public:
     uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
     if (bulbCommand)
     { // serve bulb commands
-      Serial.println("Sending bulbCommand");
-      Serial.println(bulbCommand);
+      // Serial.println("Sending bulbCommand");
+      // Serial.println(bulbCommand);
       sendButtonPressToLightbulb(bulbCommand);
     }
 
