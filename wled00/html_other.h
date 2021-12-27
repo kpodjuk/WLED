@@ -10,19 +10,20 @@ const char PAGE_irBulbControl[] PROGMEM = R"=====(<html><head><style>
 body{font-family:Verdana,sans-serif;text-align:center;background:#222;color:#fff;line-height:200%;margin:0}hr{border-color:#666}button{background:#333;color:#fff;font-family:Verdana,sans-serif;border:.3ch solid #333;display:inline-block;font-size:20px;margin:8px;margin-top:12px;cursor:pointer}.helpB{text-align:left;position:absolute;width:60px}input{background:#333;color:#fff;font-family:Verdana,sans-serif;border:.5ch solid #333}input[type=number]{width:4em}select{background:#333;color:#fff;font-family:Verdana,sans-serif;border:.5ch solid #333}td{padding:2px}.d5{width:4.5em!important}#selectedColor{overflow-y:auto;font-size:large;border-radius:40px;padding:20px}#selectedEffect{overflow-y:auto;width:20%;font-size:large;border-radius:20px;padding:10px}#backButton{width:20%;margin-top:4%;padding:2%;background-color:#794141}.brightnessButton{width:30%;border-radius:20px}
 </style></head><body onload="bodyLoaded()"><h1 style="padding-top:20px">
 Choose a color:</h1><select name="selectedColor" id="selectedColor" size="20" 
-class=""><option value="03" selected="selected">Black</option><option 
-value="03" disabled="disabled">--------------</option><option value="08">White
+class=""><option value="04">TEMP: TURN ON</option><option value="03" 
+selected="selected">Black</option><option value="03" disabled="disabled">
+--------------</option><option value="08">White</option><option value="03" 
+disabled="disabled">--------------</option><option value="23">Light Purple
+</option><option value="15">Purple</option><option value="11">Dark Purple
 </option><option value="03" disabled="disabled">--------------</option><option 
-value="23">Light Purple</option><option value="15">Purple</option><option 
-value="11">Dark Purple</option><option value="03" disabled="disabled">
---------------</option><option value="10">Light Green</option><option 
-value="06">Green</option><option value="03" disabled="disabled">--------------
-</option><option value="19">Light Blue</option><option value="22">Blue</option>
-<option value="07">Dark Blue</option><option value="03" disabled="disabled">
---------------</option><option value="21">Light Yellow</option><option 
-value="17">Yellow</option><option value="09">Dark Yellow</option><option 
-value="03" disabled="disabled">--------------</option><option value="05">Red
-</option></select><h1 style="padding-top:20px">Settings:</h1><button 
+value="10">Light Green</option><option value="06">Green</option><option 
+value="03" disabled="disabled">--------------</option><option value="19">
+Light Blue</option><option value="22">Blue</option><option value="07">Dark Blue
+</option><option value="03" disabled="disabled">--------------</option><option 
+value="21">Light Yellow</option><option value="17">Yellow</option><option 
+value="09">Dark Yellow</option><option value="03" disabled="disabled">
+--------------</option><option value="05">Red</option></select><h1 
+style="padding-top:20px">Settings:</h1><button 
 class="btn infobtn brightnessButton" id="" onclick='sendIrCommand("01")'>
 Brightness Up &#127774;</button><br><button 
 class="btn infobtn brightnessButton" id="" onclick='sendIrCommand("02")'>

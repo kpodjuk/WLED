@@ -20,7 +20,7 @@ private:
 
   // *********** CONSTANTS ***********
   const uint8_t pirSensorPin = 16;               // D0 on hardware
-  const uint32_t keepMovementDelaySeconds = 30;  // 1 min delay before switch off after the sensor state goes LOW
+  const uint32_t keepMovementDelaySeconds = 15;  // 1 min delay before switch off after the sensor state goes LOW
   const uint16_t checkFrequencyMs = 1000;        // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
   const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface
   const uint16_t presetWhenNoMovementDetected = 2;

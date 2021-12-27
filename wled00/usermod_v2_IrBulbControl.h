@@ -33,6 +33,46 @@ private:
   // Private class members. You can declare variables and functions only accessible to your usermod here
   unsigned long lastTime = 0;
 
+  // *********** CONSTANTS ***********
+  const uint8_t repeats = 2;    // how many times to repeat communication of each command, for better reliabilty
+  bool globalAutoColor = false; // should auto color approximation be turned on by default?
+
+  // For color approximation: Which colors you have on buttons
+  const int distinctRGB[14][3] = {
+      {0, 0, 0},       // black
+      {255, 255, 255}, // white
+      {186, 3, 252},   // light_purple
+      {133, 0, 181},   // purple
+      {89, 0, 140},    // dark_purple
+      {30, 255, 0},    // light green
+      {0, 156, 13},    // green
+      {0, 106, 227},   // light_blue
+      {25, 25, 196},   // blue
+      {0, 0, 255},     // dark_blue
+      {255, 221, 0},   // light_yellow
+      {255, 208, 0},   // yellow
+      {255, 162, 0},   // dark yellow
+      {255, 0, 0}      // red
+  };
+
+  // Which strings will be the output
+  const String distinctColors[14] =
+      {
+          "black",
+          "white",
+          "light_purple",
+          "purple",
+          "dark_purple",
+          "light_green",
+          "green",
+          "light_blue",
+          "blue",
+          "dark_blue",
+          "light_yellow",
+          "yellow",
+          "dark_yellow",
+          "red"};
+
 public:
   // Functions called by WLED
 
@@ -44,7 +84,7 @@ public:
   {
     // Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
-    sendButtonPressToLightbulb(3); // Turn off at the very beggining
+    sendButtonPressToLightbulb(4); // Turn on at the very beggining
   }
 
   /*
@@ -68,19 +108,16 @@ public:
    */
   void loop()
   {
-    // horrible solution, instead of calling "sendButtonPressToLightbulb" from wled_server.cpp
-    // I'm passing the data through bulbCommand global variable
-    // if (millis() - lastTime > 500)
-    // {
-    //   if (bulbCommand > -1)
-    //   {
-    //     sendButtonPressToLightbulb(bulbCommand);
-    //     Serial.println(bulbCommand);
-    //     bulbCommand = -1; // -1 means there's no command to fullfil
-    //   }
+    // static int previousEvent;
+    // int currentEvent = millis();
+    // int delay = 5000;
 
-    //   lastTime = millis();
+    // if(currentEvent- previousEvent > delay){
+    //   previousEvent = currentEvent;
+    //   sendButtonPressToLightbulb(4); // Turn on at the very beggining
+    // } else {
     // }
+
   }
 
   /*
@@ -113,41 +150,7 @@ public:
 
   String closestColor(int r, int g, int b)
   {
-    // Which colors you have on buttons
-    const int distinctRGB[14][3] = {
-        {0, 0, 0},       // black
-        {255, 255, 255}, // white
-        {186, 3, 252},   // light_purple
-        {133, 0, 181},   // purple
-        {89, 0, 140},    // dark_purple
-        {30, 255, 0},    // light green
-        {0, 156, 13},    // green
-        {0, 106, 227},   // light_blue
-        {25, 25, 196},   // blue
-        {0, 0, 255},     // dark_blue
-        {255, 221, 0},   // light_yellow
-        {255, 208, 0},   // yellow
-        {255, 162, 0},   // dark yellow
-        {255, 0, 0}      // red
-    };
-    // Which strings will be the output
-    const String distinctColors[14] =
-        {
-        "black",
-         "white",
-         "light_purple",
-         "purple",
-         "dark_purple",
-         "light_green",
-         "green",
-         "light_blue",
-         "blue",
-         "dark_blue",
-         "light_yellow",
-         "yellow",
-         "dark_yellow",
-         "red"
-         };
+
     String colorReturn = "NA";
     int biggestDifference = 1000;
     for (int i = 0; i < 14; i++)
@@ -167,9 +170,6 @@ public:
    */
   void readFromJsonState(JsonObject &root)
   {
-
-    static bool globalAutoColor = false;
-
     // userVar0 = root["user0"] | userVar0; //if "user0" key exists in JSON, update, else keep old value
     // if (root["bri"] == 255) Serial.println(F("Don't burn down your garage!"));
 
@@ -179,7 +179,10 @@ public:
 
     uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
     if (bulbCommand)
-    { // serve bulb commands
+    {
+      // Serial.printf("I parse Json info, I think I should send=%i\t\t\t", bulbCommand);
+
+      // serve bulb commands
       // Serial.println("Sending bulbCommand");
       // Serial.println(bulbCommand);
       sendButtonPressToLightbulb(bulbCommand);
@@ -215,7 +218,6 @@ public:
     // send buttonpresses according to found color
     if (distinctColor == "black")
     {
-
       sendButtonPressToLightbulb(3);
     }
     else if (distinctColor == "white")
@@ -315,92 +317,86 @@ public:
     return USERMOD_ID_EXAMPLE;
   }
 
-  // More methods can be added in the future, this example will then be extended.
-  // Your usermod will remain compatible as it does not need to implement all methods from the Usermod base class!
-};
+  // additional methods go here:
 
-void sendButtonPressToLightbulb(unsigned int button)
-{
-  const unsigned char repeats = 2; // how many times to repeat communication of each command, for better reliabilty
-  if (button != 3 && button != 1 && button != 2)
+  void sendButtonPressToLightbulb(unsigned int button)
   {
-    // try to turn ON as a first thing in almost every case, unless command is to go black
-    // or increase/decrease brightness (we don't want to turn on in that case, we don't know the choosen color so the UI would be inconsistent)
-    irsend.sendNEC(reverseBits(0xF807FF00, 32), 32, repeats);
+    Serial.printf("last method before library, sending=%i\n", button);
+
+    switch (button)
+    {
+    case 1: // brightness up (there are 4 brightness levels)
+      irsend.sendNEC(reverseBits(0xFA05FF00, 32), 32, repeats);
+      break;
+    case 2: // brightness down
+      irsend.sendNEC(reverseBits(0xFB04FF00, 32), 32, repeats);
+      break;
+    case 3: // black
+      irsend.sendNEC(reverseBits(0xF906FF00, 32), 32, repeats);
+      break;
+    case 4: // on
+      irsend.sendNEC(reverseBits(0xF807FF00, 32), 32, repeats);
+      break;
+    case 5: // red
+      irsend.sendNEC(reverseBits(0xF609FF00, 32), 32, repeats);
+      break;
+    case 6: // green
+      irsend.sendNEC(reverseBits(0xF708FF00, 32), 32, repeats);
+      break;
+    case 7: // blue
+      irsend.sendNEC(reverseBits(0xF50AFF00, 32), 32, repeats);
+      break;
+    case 8: // white
+      irsend.sendNEC(reverseBits(0xF40BFF00, 32), 32, repeats);
+      break;
+    case 9:                                                     // slightly lighter red
+      irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats); // duplicate with 13 - same hex
+      break;
+    case 10: // slightly lighter green
+      irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
+      break;
+    case 11: // slightly lighter blue
+      irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
+      break;
+    case 12:                                                    // flash
+      irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats); // duplicate with 16 - same hex
+      break;
+    case 13: // orange
+      irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats);
+      break;
+    case 14: // turquoise
+      irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
+      break;
+    case 15: // purple
+      irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
+      break;
+    case 16: // strobe
+      irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats);
+      break;
+    case 17: // slightly lighter orange
+      irsend.sendNEC(reverseBits(0xE619FF00, 32), 32, repeats);
+      break;
+    case 18: // navy
+      irsend.sendNEC(reverseBits(0xE718FF00, 32), 32, repeats);
+      break;
+    case 19: // pink
+      irsend.sendNEC(reverseBits(0xE51AFF00, 32), 32, repeats);
+      break;
+    case 20: // fade
+      irsend.sendNEC(reverseBits(0xE41BFF00, 32), 32, repeats);
+      break;
+    case 21: // yellow
+      irsend.sendNEC(reverseBits(0xEE11FF00, 32), 32, repeats);
+      break;
+    case 22: // darker navy
+      irsend.sendNEC(reverseBits(0xEF10FF00, 32), 32, repeats);
+      break;
+    case 23: // rose
+      irsend.sendNEC(reverseBits(0xED12FF00, 32), 32, repeats);
+      break;
+    case 24: // smooth
+      irsend.sendNEC(reverseBits(0xEC13FF00, 32), 32, repeats);
+      break;
+    }
   }
-  switch (button)
-  {
-  case 1: // brightness up (there are 4 brightness levels)
-    irsend.sendNEC(reverseBits(0xFA05FF00, 32), 32, repeats);
-    break;
-  case 2: // brightness down
-    irsend.sendNEC(reverseBits(0xFB04FF00, 32), 32, repeats);
-    break;
-  case 3: // black
-    irsend.sendNEC(reverseBits(0xF906FF00, 32), 32, repeats);
-    break;
-  case 4: // on
-    irsend.sendNEC(reverseBits(0xF807FF00, 32), 32, repeats);
-    break;
-  case 5: // red
-    irsend.sendNEC(reverseBits(0xF609FF00, 32), 32, repeats);
-    break;
-  case 6: // green
-    irsend.sendNEC(reverseBits(0xF708FF00, 32), 32, repeats);
-    break;
-  case 7: // blue
-    irsend.sendNEC(reverseBits(0xF50AFF00, 32), 32, repeats);
-    break;
-  case 8: // white
-    irsend.sendNEC(reverseBits(0xF40BFF00, 32), 32, repeats);
-    break;
-  case 9:                                                     // slightly lighter red
-    irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats); // duplicate with 13 - same hex
-    break;
-  case 10: // slightly lighter green
-    irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
-    break;
-  case 11: // slightly lighter blue
-    irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
-    break;
-  case 12:                                                    // flash
-    irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats); // duplicate with 16 - same hex
-    break;
-  case 13: // orange
-    irsend.sendNEC(reverseBits(0xF20DFF00, 32), 32, repeats);
-    break;
-  case 14: // turquoise
-    irsend.sendNEC(reverseBits(0xF30CFF00, 32), 32, repeats);
-    break;
-  case 15: // purple
-    irsend.sendNEC(reverseBits(0xF10EFF00, 32), 32, repeats);
-    break;
-  case 16: // strobe
-    irsend.sendNEC(reverseBits(0xF00FFF00, 32), 32, repeats);
-    break;
-  case 17: // slightly lighter orange
-    irsend.sendNEC(reverseBits(0xE619FF00, 32), 32, repeats);
-    break;
-  case 18: // navy
-    irsend.sendNEC(reverseBits(0xE718FF00, 32), 32, repeats);
-    break;
-  case 19: // pink
-    irsend.sendNEC(reverseBits(0xE51AFF00, 32), 32, repeats);
-    break;
-  case 20: // fade
-    irsend.sendNEC(reverseBits(0xE41BFF00, 32), 32, repeats);
-    break;
-  case 21: // yellow
-    irsend.sendNEC(reverseBits(0xEE11FF00, 32), 32, repeats);
-    break;
-  case 22: // darker navy
-    irsend.sendNEC(reverseBits(0xEF10FF00, 32), 32, repeats);
-    break;
-  case 23: // rose
-    irsend.sendNEC(reverseBits(0xED12FF00, 32), 32, repeats);
-    break;
-  case 24: // smooth
-    irsend.sendNEC(reverseBits(0xEC13FF00, 32), 32, repeats);
-    break;
-  }
-}
+};
