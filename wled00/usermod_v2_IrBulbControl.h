@@ -6,6 +6,9 @@
 #include <IRutils.h>
 #include "sendButtonPressToLightbulb.h"
 
+
+#define DEBUG_PRINT_SENT_COMMANDS 0
+
 /*
  * Usermods allow you to add own functionality to WLED more easily
  * See: https://github.com/Aircoookie/WLED/wiki/Add-own-functionality
@@ -39,9 +42,14 @@ private:
 
   // *********** CONSTANTS ***********
   const uint8_t repeats = 2;                      // how many times to repeat communication of each command, for better reliabilty
+
+
+  // WTF???
   const bool makeSureCommandsAreReceived = false; // should last command be repeated once every X ms?
-  // not sure if this is safe ☝️👆
-  const int16_t commandRepeatInterval_ms = 2000;  // how many ms to wait before repeating command
+  // not sure what's wrong☝️👆, board crashes when it's == true
+  // don't use this!
+  const int16_t commandRepeatInterval_ms = 1500; // how many ms to wait before repeating command
+
 
   // For color approximation: Which colors you have on buttons
   const int distinctRGB[14][3] = {
@@ -90,7 +98,7 @@ public:
   {
     // Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
-    sendButtonPressToLightbulb(4); // Turn on at the very beggining
+    // sendButtonPressToLightbulb(4); // Turn on at the very beggining
   }
 
   /*
@@ -121,7 +129,7 @@ public:
       if (currentCommandRepeat - previousCommandRepeat > commandRepeatInterval_ms)
       {
         previousCommandRepeat = currentCommandRepeat;
-        // Serial.printf("Repeating cmd ID=%i\n", lastCommand);
+        Serial.printf("Repeating cmd ID=%i\n", lastCommand);
         sendButtonPressToLightbulb(lastCommand);
       }
     }
@@ -157,7 +165,6 @@ public:
 
   String closestColor(int r, int g, int b)
   {
-
     String colorReturn = "NA";
     int biggestDifference = 1000;
     for (int i = 0; i < 14; i++)
@@ -326,7 +333,10 @@ public:
 
   void sendButtonPressToLightbulb(uint8_t button)
   {
-    // Serial.printf("Sending ID=%i to bulb\n", button);
+
+#if DEBUG_PRINT_SENT_COMMANDS
+    Serial.printf("Sending ID=%i to bulb\n", button);
+#endif
 
     switch (button)
     {
@@ -404,6 +414,7 @@ public:
       break;
     }
     // save last command
-    lastCommand = button;
+    if (makeSureCommandsAreReceived)
+      lastCommand = button;
   }
 };
