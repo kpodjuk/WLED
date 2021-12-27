@@ -4,29 +4,30 @@
 
 // #define DEBUG_PIR_SENSOR
 
+// disables pir sensor whole functionality
+// #define DISABLE_PIR_SENSOR_MONITORING
+
 class UsermodPirSensor : public Usermod
 {
 private:
-  const bool disablePirSensorMonitoring = false; // disables pir sensor whole functionality
-
   uint32_t previousCheckTime;
   uint32_t currentCheckTime;
 
   bool currentPinState;
-
   bool keepMovementFlag;
   bool checkAnywaysFlag;
 
   uint16_t keepMovementCounter; // counter to keep HIGH/MOVED status for a x time after movement was detected
-
   uint16_t currentPreset;
-  uint16_t previousPreset;
+  uint16_t previousPreset = 0;
 
   // *********** CONSTANTS ***********
   const uint8_t pirSensorPin = 16;               // D0 on hardware
   const uint32_t keepMovementDelaySeconds = 15;  // 1 min delay before switch off after the sensor state goes LOW
   const uint16_t checkFrequencyMs = 1000;        // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
-  const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface
+  
+  // those presets are problematic when someone doesn't have any with that ID on fresh install
+  const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface, 0 = default
   const uint16_t presetWhenNoMovementDetected = 2;
 
 // debug var
@@ -47,7 +48,6 @@ public:
   }
   void setup()
   {
-    // Serial.println("Hello from usermod pir sensor!");
     pinMode(pirSensorPin, INPUT);
   }
 
@@ -60,14 +60,9 @@ public:
 
   void loop()
   {
-    if (disablePirSensorMonitoring)
-    {
-      // disabled...
-    }
-    else
-    {
-      checkPirSensorPeriodically();
-    }
+#ifndef DISABLE_PIR_SENSOR_MONITORING
+    checkPirSensorPeriodically();
+#endif
   }
 
   // check pir sensor state and apply preset
@@ -136,10 +131,11 @@ public:
 
   void applyPresetIfNeeded(uint16_t preset)
   {
+
     if (preset != previousPreset)
     {
       // Serial.printf("!!!!!! ACTUALLY CHANGED PRESET NOW, PRESET CHANGED TO:%i !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n", currentPreset);
-      // Serial.println("PirSensor applying preset");
+      // Serial.printf("apply preset=%i\n", preset);
       applyPreset(preset);
     }
     previousPreset = preset;
