@@ -160,7 +160,7 @@ public:
    */
   void addToJsonState(JsonObject &root)
   {
-    // root["IrBulbControlCommand"] = 0xFF;
+  // send current variable status    
   }
 
   String closestColor(int r, int g, int b)
@@ -192,13 +192,10 @@ public:
     // Serial.printf(" B:%i\n", blue);
 
     uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
+
     if (bulbCommand)
     {
       // Serial.printf("I parse Json info, I think I should send=%i\t\t\t", bulbCommand);
-
-      // serve bulb commands
-      // Serial.println("Sending bulbCommand");
-      // Serial.println(bulbCommand);
       sendButtonPressToLightbulb(bulbCommand);
     }
 

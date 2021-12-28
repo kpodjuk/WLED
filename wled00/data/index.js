@@ -2,7 +2,7 @@
 var loc = false, locip;
 var noNewSegs = false;
 var isOn = false, nlA = false, isLv = false, isInfo = false, isNodes = false, syncSend = false, syncTglRecv = true, isRgbw = false;
-var whites = [0,0,0];
+var whites = [0, 0, 0];
 var selColors;
 var expanded = [false];
 var powered = [true];
@@ -22,38 +22,87 @@ var pN = "", pI = 0;
 var pmt = 1, pmtLS = 0, pmtLast = 0;
 var lastinfo = {};
 var cfg = {
-	theme:{base:"dark", bg:{url:""}, alpha:{bg:0.6,tab:0.8}, color:{bg:""}},
-	comp :{colors:{picker: true, rgb: false, quick: true, hex: false}, labels:true, pcmbot:false, pid:true}
+	theme: { base: "dark", bg: { url: "" }, alpha: { bg: 0.6, tab: 0.8 }, color: { bg: "" } },
+	comp: { colors: { picker: true, rgb: false, quick: true, hex: false }, labels: true, pcmbot: false, pid: true }
 };
+
+
+// ### #### MY FUNCTIONS ### ####
+
+
+function motionSensingCheckbox() {
+	// console.log("motion checkbox");
+	var obj = { "motionSensingState": document.getElementById("motionSensing").checked };
+	requestJsonObject(obj)
+	console.log(obj);
+}
+
+
+function requestJsonObject(command, rinfo = true, verbose = true) {
+	var loc = false;
+	var url = rinfo ? '/json/si' : (command ? '/json/state' : '/json');
+	// if (loc) {
+	// 	url = `http://${locip}${url}`;
+	// }
+	var type = command ? 'post' : 'get';
+	if (command) {
+		command.v = verbose;
+		command.time = Math.floor(Date.now() / 1000);
+		req = JSON.stringify(command);
+		//console.log(req);
+	}
+	fetch
+		(url, {
+			method: type,
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			},
+			body: req
+		})
+		.then(res => {
+			if (!res.ok) {
+				// showErrorToast();
+			}
+			return res.json();
+		})
+		.then(json => {
+			if (json.success) {
+				return;
+			}
+		});
+}
+
+
+// ### #### MY FUNCTIONS END ### ####
 
 var cpick = new iro.ColorPicker("#picker", {
 	width: 260,
 	wheelLightness: false,
-  wheelAngle: 90,
-  layout: [
-    {
-      component: iro.ui.Wheel,
-      options: {}
-    },
-    {
-      component: iro.ui.Slider,
-      options: {
-        sliderType: 'value'
-      }
-    },
-    {
-      component: iro.ui.Slider,
-      options: {
-        sliderType: 'kelvin',
-        minTemperature: 2100,
-        maxTemperature: 10000
-      }
-    }
-  ]
+	wheelAngle: 90,
+	layout: [
+		{
+			component: iro.ui.Wheel,
+			options: {}
+		},
+		{
+			component: iro.ui.Slider,
+			options: {
+				sliderType: 'value'
+			}
+		},
+		{
+			component: iro.ui.Slider,
+			options: {
+				sliderType: 'kelvin',
+				minTemperature: 2100,
+				maxTemperature: 10000
+			}
+		}
+	]
 });
 
 function handleVisibilityChange() {
-	if (!d.hidden && new Date () - lastUpdate > 3000) {
+	if (!d.hidden && new Date() - lastUpdate > 3000) {
 		requestJson(null);
 	}
 }
@@ -62,102 +111,98 @@ function sCol(na, col) {
 	d.documentElement.style.setProperty(na, col);
 }
 
-function applyCfg()
-{
+function applyCfg() {
 	cTheme(cfg.theme.base === "light");
 	var bg = cfg.theme.color.bg;
 	if (bg) sCol('--c-1', bg);
 	var ccfg = cfg.comp.colors;
-	d.getElementById('hexw').style.display = ccfg.hex ? "block":"none";
-	d.getElementById('picker').style.display = ccfg.picker ? "block":"none";
-	d.getElementById('rgbwrap').style.display = ccfg.rgb ? "block":"none";
-	d.getElementById('qcs-w').style.display = ccfg.quick ? "block":"none";
+	d.getElementById('hexw').style.display = ccfg.hex ? "block" : "none";
+	d.getElementById('picker').style.display = ccfg.picker ? "block" : "none";
+	d.getElementById('rgbwrap').style.display = ccfg.rgb ? "block" : "none";
+	d.getElementById('qcs-w').style.display = ccfg.quick ? "block" : "none";
 	var l = cfg.comp.labels;
 	var e = d.querySelectorAll('.tab-label');
-	for (var i=0; i<e.length; i++)
-		e[i].style.display = l ? "block":"none";
+	for (var i = 0; i < e.length; i++)
+		e[i].style.display = l ? "block" : "none";
 	e = d.querySelector('.hd');
-	e.style.display = l ? "block":"none";
-	sCol('--tbp',l ? "14px 14px 10px 14px":"10px 22px 4px 22px");
-	sCol('--bbp',l ? "9px 0 7px 0":"10px 0 4px 0");
-	sCol('--bhd',l ? "block":"none");
-	sCol('--bmt',l ? "0px":"5px");
+	e.style.display = l ? "block" : "none";
+	sCol('--tbp', l ? "14px 14px 10px 14px" : "10px 22px 4px 22px");
+	sCol('--bbp', l ? "9px 0 7px 0" : "10px 0 4px 0");
+	sCol('--bhd', l ? "block" : "none");
+	sCol('--bmt', l ? "0px" : "5px");
 	sCol('--t-b', cfg.theme.alpha.tab);
 	size();
 	localStorage.setItem('wledUiCfg', JSON.stringify(cfg));
 }
 
-function tglHex()
-{
+function tglHex() {
 	cfg.comp.colors.hex = !cfg.comp.colors.hex;
 	applyCfg();
 }
 
-function tglTheme()
-{
-	cfg.theme.base = (cfg.theme.base === "light") ? "dark":"light";
+function tglTheme() {
+	cfg.theme.base = (cfg.theme.base === "light") ? "dark" : "light";
 	applyCfg();
 }
 
-function tglLabels()
-{
+function tglLabels() {
 	cfg.comp.labels = !cfg.comp.labels;
 	applyCfg();
 }
 
 function cTheme(light) {
 	if (light) {
-	sCol('--c-1','#eee');
-	sCol('--c-f','#000');
-	sCol('--c-2','#ddd');
-	sCol('--c-3','#bbb');
-	sCol('--c-4','#aaa');
-	sCol('--c-5','#999');
-	sCol('--c-6','#999');
-	sCol('--c-8','#888');
-	sCol('--c-b','#444');
-	sCol('--c-c','#333');
-	sCol('--c-e','#111');
-	sCol('--c-d','#222');
-	sCol('--c-r','#c42');
-	sCol('--c-o','rgba(204, 204, 204, 0.9)');
-	sCol('--c-sb','#0003'); sCol('--c-sbh','#0006');
-	sCol('--c-tb','rgba(204, 204, 204, var(--t-b))');
-	sCol('--c-tba','rgba(170, 170, 170, var(--t-b))');
-	sCol('--c-tbh','rgba(204, 204, 204, var(--t-b))');
-	d.getElementById('imgw').style.filter = "invert(0.8)";
+		sCol('--c-1', '#eee');
+		sCol('--c-f', '#000');
+		sCol('--c-2', '#ddd');
+		sCol('--c-3', '#bbb');
+		sCol('--c-4', '#aaa');
+		sCol('--c-5', '#999');
+		sCol('--c-6', '#999');
+		sCol('--c-8', '#888');
+		sCol('--c-b', '#444');
+		sCol('--c-c', '#333');
+		sCol('--c-e', '#111');
+		sCol('--c-d', '#222');
+		sCol('--c-r', '#c42');
+		sCol('--c-o', 'rgba(204, 204, 204, 0.9)');
+		sCol('--c-sb', '#0003'); sCol('--c-sbh', '#0006');
+		sCol('--c-tb', 'rgba(204, 204, 204, var(--t-b))');
+		sCol('--c-tba', 'rgba(170, 170, 170, var(--t-b))');
+		sCol('--c-tbh', 'rgba(204, 204, 204, var(--t-b))');
+		d.getElementById('imgw').style.filter = "invert(0.8)";
 	} else {
-	sCol('--c-1','#111');
-	sCol('--c-f','#fff');
-	sCol('--c-2','#222');
-	sCol('--c-3','#333');
-	sCol('--c-4','#444');
-	sCol('--c-5','#555');
-	sCol('--c-6','#666');
-	sCol('--c-8','#888');
-	sCol('--c-b','#bbb');
-	sCol('--c-c','#ccc');
-	sCol('--c-e','#eee');
-	sCol('--c-d','#ddd');
-	sCol('--c-r','#831');
-	sCol('--c-o','rgba(34, 34, 34, 0.9)');
-	sCol('--c-sb','#fff3'); sCol('--c-sbh','#fff5');
-	sCol('--c-tb','rgba(34, 34, 34, var(--t-b))');
-	sCol('--c-tba','rgba(102, 102, 102, var(--t-b))');
-	sCol('--c-tbh','rgba(51, 51, 51, var(--t-b))');
-	d.getElementById('imgw').style.filter = "unset";
+		sCol('--c-1', '#111');
+		sCol('--c-f', '#fff');
+		sCol('--c-2', '#222');
+		sCol('--c-3', '#333');
+		sCol('--c-4', '#444');
+		sCol('--c-5', '#555');
+		sCol('--c-6', '#666');
+		sCol('--c-8', '#888');
+		sCol('--c-b', '#bbb');
+		sCol('--c-c', '#ccc');
+		sCol('--c-e', '#eee');
+		sCol('--c-d', '#ddd');
+		sCol('--c-r', '#831');
+		sCol('--c-o', 'rgba(34, 34, 34, 0.9)');
+		sCol('--c-sb', '#fff3'); sCol('--c-sbh', '#fff5');
+		sCol('--c-tb', 'rgba(34, 34, 34, var(--t-b))');
+		sCol('--c-tba', 'rgba(102, 102, 102, var(--t-b))');
+		sCol('--c-tbh', 'rgba(51, 51, 51, var(--t-b))');
+		d.getElementById('imgw').style.filter = "unset";
 	}
 }
 
 function loadBg(iUrl) {
 	let bg = d.getElementById('bg');
-  let img = d.createElement("img");
-  img.src = iUrl;
-  if (iUrl == "") {
-    var today = new Date();
-    if (today.getMonth() == 11 && (today.getDate() > 23 && today.getDate() < 28)) img.src = "https://aircoookie.github.io/xmas.png";
-    else if (today.getMonth() == 3 && (today.getDate() > 3 && today.getDate() < 6)) img.src = "https://aircoookie.github.io/easter.png";
-  }
+	let img = d.createElement("img");
+	img.src = iUrl;
+	if (iUrl == "") {
+		var today = new Date();
+		if (today.getMonth() == 11 && (today.getDate() > 23 && today.getDate() < 28)) img.src = "https://aircoookie.github.io/xmas.png";
+		else if (today.getMonth() == 3 && (today.getDate() > 3 && today.getDate() < 6)) img.src = "https://aircoookie.github.io/easter.png";
+	}
 	img.addEventListener('load', (event) => {
 		var a = parseFloat(cfg.theme.alpha.bg);
 		if (isNaN(a)) a = 0.6;
@@ -169,13 +214,12 @@ function loadBg(iUrl) {
 
 function onLoad() {
 	if (window.location.protocol == "file:") {
-	loc = true;
-	locip = localStorage.getItem('locIp');
-	if (!locip)
-	{
-		locip = prompt("File Mode. Please enter WLED IP!");
-		localStorage.setItem('locIp', locip);
-	}
+		loc = true;
+		locip = localStorage.getItem('locIp');
+		if (!locip) {
+			locip = prompt("File Mode. Please enter WLED IP!");
+			localStorage.setItem('locIp', locip);
+		}
 	}
 	var sett = localStorage.getItem('wledUiCfg');
 	if (sett) cfg = mergeDeep(cfg, JSON.parse(sett));
@@ -192,14 +236,14 @@ function onLoad() {
 	selectSlot(0);
 	updateTablinks(0);
 	resetUtil();
-	cpick.on("input:end", function() {
+	cpick.on("input:end", function () {
 		setColor(1);
 	});
 	pmtLS = localStorage.getItem('wledPmt');
-	setTimeout(function(){requestJson(null, false);}, 25);
+	setTimeout(function () { requestJson(null, false); }, 25);
 	d.addEventListener("visibilitychange", handleVisibilityChange, false);
 	size();
-	d.getElementById("cv").style.opacity=0;
+	d.getElementById("cv").style.opacity = 0;
 	if (localStorage.getItem('pcm') == "true") togglePcMode(true);
 	var sls = d.querySelectorAll('input[type="range"]');
 	for (var sl of sls) {
@@ -209,8 +253,7 @@ function onLoad() {
 	}
 }
 
-function updateTablinks(tabI)
-{
+function updateTablinks(tabI) {
 	var tablinks = d.getElementsByClassName("tablinks");
 	for (var i of tablinks) {
 		i.className = i.className.replace(" active", "");
@@ -232,11 +275,11 @@ function showToast(text, error = false) {
 	if (error) d.getElementById('connind').style.backgroundColor = "#831";
 	var x = d.getElementById("toast");
 	x.innerHTML = text;
-	x.className = error ? "error":"show";
+	x.className = error ? "error" : "show";
 	clearTimeout(timeout);
 	x.style.animation = 'none';
 	x.style.animation = null;
-	timeout = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 2900);
+	timeout = setTimeout(function () { x.className = x.className.replace("show", ""); }, 2900);
 }
 
 function showErrorToast() {
@@ -246,34 +289,30 @@ function clearErrorToast() {
 	d.getElementById("toast").className = d.getElementById("toast").className.replace("error", "");
 }
 
-function getRuntimeStr(rt)
-{
+function getRuntimeStr(rt) {
 	var t = parseInt(rt);
-	var days = Math.floor(t/86400);
-	var hrs = Math.floor((t - days*86400)/3600);
-	var mins = Math.floor((t - days*86400 - hrs*3600)/60);
+	var days = Math.floor(t / 86400);
+	var hrs = Math.floor((t - days * 86400) / 3600);
+	var mins = Math.floor((t - days * 86400 - hrs * 3600) / 60);
 	var str = days ? (days + " " + (days == 1 ? "day" : "days") + ", ") : "";
 	str += (hrs || days) ? (hrs + " " + (hrs == 1 ? "hour" : "hours")) : "";
 	if (!days && hrs) str += ", ";
 	if (t > 59 && !days) str += mins + " min";
 	if (t < 3600 && t > 59) str += ", ";
-	if (t < 3600) str += (t - mins*60) + " sec";
+	if (t < 3600) str += (t - mins * 60) + " sec";
 	return str;
 }
 
-function inforow(key, val, unit = "")
-{
+function inforow(key, val, unit = "") {
 	return `<tr><td class="keytd">${key}</td><td class="valtd">${val}${unit}</td></tr>`;
 }
 
-function getLowestUnusedP()
-{
+function getLowestUnusedP() {
 	var l = 1;
-	for (var key in pJson)
-	{
+	for (var key in pJson) {
 		if (key == l) l++;
-  }
-  if (l > 250) l = 250;
+	}
+	if (l > 250) l = 250;
 	return l;
 }
 
@@ -294,7 +333,7 @@ function pName(i) {
 
 function papiVal(i) {
 	if (!pJson[i]) return "";
-	var o = Object.assign({},pJson[i]);
+	var o = Object.assign({}, pJson[i]);
 	if (o.win) return o.win;
 	delete o.n; delete o.p; delete o.ql;
 	return JSON.stringify(o);
@@ -302,22 +341,21 @@ function papiVal(i) {
 
 function qlName(i) {
 	if (!pJson[i]) return "";
-  if (!pJson[i].ql) return "";
-  return pJson[i].ql;
+	if (!pJson[i].ql) return "";
+	return pJson[i].ql;
 }
 
 function cpBck() {
 	var copyText = d.getElementById("bck");
 
-  copyText.select();
-  copyText.setSelectionRange(0, 999999);
-  d.execCommand("copy");
-	
+	copyText.select();
+	copyText.setSelectionRange(0, 999999);
+	d.execCommand("copy");
+
 	showToast("Copied to clipboard!");
 }
 
-function presetError(empty)
-{
+function presetError(empty) {
 	var hasBackup = false; var bckstr = "";
 	try {
 		bckstr = localStorage.getItem("wledP");
@@ -346,83 +384,80 @@ function presetError(empty)
 	if (hasBackup) d.getElementById('bck').value = bckstr;
 }
 
-function loadPresets()
-{
+
+
+function loadPresets() {
 	var url = '/presets.json';
 	if (loc) {
 		url = `http://${locip}/presets.json`;
 	}
 
 	fetch
-	(url, {
-		method: 'get'
-	})
-	.then(res => {
-		if (!res.ok) {
-			 showErrorToast();
-		}
-		return res.json();
-	})
-	.then(json => {
-		pJson = json;
-		populatePresets();
-	})
-	.catch(function (error) {
-		showToast(error, true);
-		console.log(error);
-		presetError(false);
-	});
+		(url, {
+			method: 'get'
+		})
+		.then(res => {
+			if (!res.ok) {
+				showErrorToast();
+			}
+			return res.json();
+		})
+		.then(json => {
+			pJson = json;
+			populatePresets();
+		})
+		.catch(function (error) {
+			showToast(error, true);
+			console.log(error);
+			presetError(false);
+		});
 }
 
 var pQL = [];
 
-function populateQL()
-{
+function populateQL() {
 	var cn = "";
 	if (pQL.length > 0) {
-	cn += `<p class="labels">Quick load</p>`;
+		cn += `<p class="labels">Quick load</p>`;
 
-  var it = 0;
-	for (var key of (pQL||[]))
-	{
-    cn += `<button class="xxs btn psts" id="p${key[0]}qlb" onclick="setPreset(${key[0]});">${key[1]}</button>`;
-    it++;
-    if (it > 4) {
-      it = 0;
-      cn += '<br>';
-    }
-  }
-  if (it != 0) cn+= '<br>';
+		var it = 0;
+		for (var key of (pQL || [])) {
+			cn += `<button class="xxs btn psts" id="p${key[0]}qlb" onclick="setPreset(${key[0]});">${key[1]}</button>`;
+			it++;
+			if (it > 4) {
+				it = 0;
+				cn += '<br>';
+			}
+		}
+		if (it != 0) cn += '<br>';
 
-	cn += `<p class="labels">All presets</p>`;
+		cn += `<p class="labels">All presets</p>`;
 	}
 	d.getElementById('pql').innerHTML = cn;
 }
 
-function populatePresets(fromls)
-{
+function populatePresets(fromls) {
 	if (fromls) pJson = JSON.parse(localStorage.getItem("wledP"));
 	delete pJson["0"];
 	var cn = "";
 	var arr = Object.entries(pJson);
 	arr.sort(cmpP);
 	var added = false;
-  pQL = [];
-  var is = [];
+	pQL = [];
+	var is = [];
 
-	for (var key of (arr||[]))
-	{
+	for (var key of (arr || [])) {
 		if (!isObject(key[1])) continue;
 		let i = parseInt(key[0]);
 		var qll = key[1].ql;
-    if (qll) pQL.push([i, qll]);
-    is.push(i);
+		if (qll) pQL.push([i, qll]);
+		is.push(i);
 
-    cn += `<div class="seg pres" id="p${i}o">`;
-    if (cfg.comp.pid) cn += `<div class="pid">${i}</div>`;
-    cn += `<div class="segname pname" onclick="setPreset(${i})">${pName(i)}</div>
-			<i class="icons e-icon flr ${expanded[i+100] ? "exp":""}" id="sege${i+100}" onclick="expand(${i+100})">&#xe395;</i>
-			<div class="segin" id="seg${i+100}"></div>
+		cn += `<div class="seg pres" id="p${i}o">`;
+		if (cfg.comp.pid) cn += `<div class="pid">${i}</div>`;
+		cn += `<div class="segname pname" onclick="setPreset(${i})">${pName(i)}</div>
+			<i class="icons e-icon flr ${expanded[i + 100] ? "exp" : ""}" id="sege${i + 100}" onclick="expand(${i + 100})">&#xe395;</i>
+			<div class="segin" id="seg${i + 100}"></div>
 		</div><br>`;
 		added = true;
 	}
@@ -434,36 +469,34 @@ function populatePresets(fromls)
 			pJson["0"] = {};
 			localStorage.setItem("wledP", JSON.stringify(pJson));
 		}
-    pmtLS = pmt;
-    for (var a = 0; a < is.length; a++) {
-      let i = is[a];
-      if (expanded[i+100]) expand(i+100, true);
-    }
+		pmtLS = pmt;
+		for (var a = 0; a < is.length; a++) {
+			let i = is[a];
+			if (expanded[i + 100]) expand(i + 100, true);
+		}
 	} else { presetError(true); }
 	updatePA();
 	populateQL();
 }
 
-function populateInfo(i)
-{
-	var cn="";
-	var heap = i.freeheap/1000;
+function populateInfo(i) {
+	var cn = "";
+	var heap = i.freeheap / 1000;
 	heap = heap.toFixed(1);
 	var pwr = i.leds.pwr;
 	var pwru = "Not calculated";
-	if (pwr > 1000) {pwr /= 1000; pwr = pwr.toFixed((pwr > 10) ? 0 : 1); pwru = pwr + " A";}
-	else if (pwr > 0) {pwr = 50 * Math.round(pwr/50); pwru = pwr + " mA";}
-  var urows="";
-  if (i.u) {
-    for (const [k, val] of Object.entries(i.u))
-    {
-      if (val[1]) {
-        urows += inforow(k,val[0],val[1]);
-      } else {
-        urows += inforow(k,val);
-      }
-    }
-  }
+	if (pwr > 1000) { pwr /= 1000; pwr = pwr.toFixed((pwr > 10) ? 0 : 1); pwru = pwr + " A"; }
+	else if (pwr > 0) { pwr = 50 * Math.round(pwr / 50); pwru = pwr + " mA"; }
+	var urows = "";
+	if (i.u) {
+		for (const [k, val] of Object.entries(i.u)) {
+			if (val[1]) {
+				urows += inforow(k, val[0], val[1]);
+			} else {
+				urows += inforow(k, val);
+			}
+		}
+	}
 
 	var vcn = "Kuuhaku";
 	if (i.ver.startsWith("0.12.")) vcn = "Hikari";
@@ -471,52 +504,50 @@ function populateInfo(i)
 
 	cn += `v${i.ver} "${vcn}"<br><br><table class="infot">
 	${urows}
-	${inforow("Build",i.vid)}
-	${inforow("Signal strength",i.wifi.signal +"% ("+ i.wifi.rssi, " dBm)")}
-	${inforow("Uptime",getRuntimeStr(i.uptime))}
-	${inforow("Free heap",heap," kB")}
-  ${inforow("Estimated current",pwru)}
-  ${inforow("Frames / second",i.leds.fps)}
-	${inforow("MAC address",i.mac)}
-	${inforow("Filesystem",i.fs.u + "/" + i.fs.t + " kB (" +Math.round(i.fs.u*100/i.fs.t) + "%)")}
-	${inforow("Environment",i.arch + " " + i.core + " (" + i.lwip + ")")}
+	${inforow("Build", i.vid)}
+	${inforow("Signal strength", i.wifi.signal + "% (" + i.wifi.rssi, " dBm)")}
+	${inforow("Uptime", getRuntimeStr(i.uptime))}
+	${inforow("Free heap", heap, " kB")}
+  ${inforow("Estimated current", pwru)}
+  ${inforow("Frames / second", i.leds.fps)}
+	${inforow("MAC address", i.mac)}
+	${inforow("Filesystem", i.fs.u + "/" + i.fs.t + " kB (" + Math.round(i.fs.u * 100 / i.fs.t) + "%)")}
+	${inforow("Environment", i.arch + " " + i.core + " (" + i.lwip + ")")}
 	</table>`;
 	d.getElementById('kv').innerHTML = cn;
 }
 
-function populateSegments(s)
-{
+function populateSegments(s) {
 	var cn = "";
 	segCount = 0; lowestUnused = 0; lSeg = 0;
 
-	for (var y = 0; y < (s.seg||[]).length; y++)
-	{
+	for (var y = 0; y < (s.seg || []).length; y++) {
 		segCount++;
 
-		var inst=s.seg[y];
+		var inst = s.seg[y];
 		let i = parseInt(inst.id);
 		powered[i] = inst.on;
-		if (i == lowestUnused) lowestUnused = i+1;
+		if (i == lowestUnused) lowestUnused = i + 1;
 		if (i > lSeg) lSeg = i;
 
 		cn += `<div class="seg">
 			<label class="check schkl">
 				&nbsp;
-				<input type="checkbox" id="seg${i}sel" onchange="selSeg(${i})" ${inst.sel ? "checked":""}>
+				<input type="checkbox" id="seg${i}sel" onchange="selSeg(${i})" ${inst.sel ? "checked" : ""}>
 				<span class="checkmark schk"></span>
 			</label>
 			<div class="segname" onclick="selSegEx(${i})">
 				Segment ${i}
 			</div>
-			<i class="icons e-icon flr ${expanded[i] ? "exp":""}" id="sege${i}" onclick="expand(${i})">&#xe395;</i>
-			<div class="segin ${expanded[i] ? "expanded":""}" id="seg${i}">
+			<i class="icons e-icon flr ${expanded[i] ? "exp" : ""}" id="sege${i}" onclick="expand(${i})">&#xe395;</i>
+			<div class="segin ${expanded[i] ? "expanded" : ""}" id="seg${i}">
 			<table class="segt">
 				<tr>
 					<td class="segtd">Start LED</td>
 					<td class="segtd">Stop LED</td>
 				</tr>
 				<tr>
-					<td class="segtd"><input class="noslide segn" id="seg${i}s" type="number" min="0" max="${ledCount-1}" value="${inst.start}" oninput="updateLen(${i})"></td>
+					<td class="segtd"><input class="noslide segn" id="seg${i}s" type="number" min="0" max="${ledCount - 1}" value="${inst.start}" oninput="updateLen(${i})"></td>
 					<td class="segtd"><input class="noslide segn" id="seg${i}e" type="number" min="0" max="${ledCount}" value="${inst.stop}" oninput="updateLen(${i})"></td>
 				</tr>
 			</table>
@@ -531,7 +562,7 @@ function populateSegments(s)
 				</tr>
 			</table>
 			<div class="h bp" id="seg${i}len"></div>
-			<i class="icons e-icon pwr ${powered[i] ? "act":""}" id="seg${i}pwr" onclick="setSegPwr(${i})">&#xe08f;</i>
+			<i class="icons e-icon pwr ${powered[i] ? "act" : ""}" id="seg${i}pwr" onclick="setSegPwr(${i})">&#xe08f;</i>
 			<div class="sliderwrap il sws">
 				<input id="seg${i}bri" class="noslide sis" onchange="setSegBri(${i})" oninput="updateTrail(this)" max="255" min="1" type="range" value="${inst.bri}" />
 				<div class="sliderdisplay"></div>
@@ -540,12 +571,12 @@ function populateSegments(s)
 				<i class="icons e-icon del" id="segd${i}" onclick="delSeg(${i})">&#xe037;</i>
 				<label class="check revchkl">
 					Reverse direction
-					<input type="checkbox" id="seg${i}rev" onchange="setRev(${i})" ${inst.rev ? "checked":""}>
+					<input type="checkbox" id="seg${i}rev" onchange="setRev(${i})" ${inst.rev ? "checked" : ""}>
 					<span class="checkmark schk"></span>
 				</label>
 				<label class="check revchkl">
 					Mirror effect
-					<input type="checkbox" id="seg${i}mi" onchange="setMi(${i})" ${inst.mi ? "checked":""}>
+					<input type="checkbox" id="seg${i}mi" onchange="setMi(${i})" ${inst.mi ? "checked" : ""}>
 					<span class="checkmark schk"></span>
 				</label>
 			</div>
@@ -561,21 +592,20 @@ function populateSegments(s)
 		noNewSegs = false;
 	}
 	for (var i = 0; i <= lSeg; i++) {
-	updateLen(i);
-	updateTrail(d.getElementById(`seg${i}bri`));
-	if (segCount < 2) d.getElementById(`segd${lSeg}`).style.display = "none";
+		updateLen(i);
+		updateTrail(d.getElementById(`seg${i}bri`));
+		if (segCount < 2) d.getElementById(`segd${lSeg}`).style.display = "none";
 	}
-	d.getElementById('rsbtn').style.display = (segCount > 1) ? "inline":"none";
+	d.getElementById('rsbtn').style.display = (segCount > 1) ? "inline" : "none";
 }
 
-function populateEffects(effects)
-{
+function populateEffects(effects) {
 	var html = `<div class="searchbar"><input type="text" class="search" placeholder="Search" oninput="search(this)" />
     <i class="icons search-cancel-icon" onclick="cancelSearch(this)">&#xe38f;</i></div>`;
 
 	effects.shift(); //remove solid
 	for (let i = 0; i < effects.length; i++) {
-		effects[i] = {id: parseInt(i)+1, name:effects[i]};
+		effects[i] = { id: parseInt(i) + 1, name: effects[i] };
 	}
 	effects.sort(compare);
 
@@ -596,15 +626,14 @@ function populateEffects(effects)
 		);
 	}
 
-	d.getElementById('fxlist').innerHTML=html;
+	d.getElementById('fxlist').innerHTML = html;
 }
 
-function populatePalettes(palettes)
-{
+function populatePalettes(palettes) {
 	palettes.shift(); //remove default
 	for (let i = 0; i < palettes.length; i++) {
 		palettes[i] = {
-			"id": parseInt(i)+1,
+			"id": parseInt(i) + 1,
 			"name": palettes[i]
 		};
 	}
@@ -615,26 +644,25 @@ function populatePalettes(palettes)
 		"name": "Default",
 		"class": "sticky"
 	});
-	
+
 	var html = `<div class="searchbar"><input type="text" class="search" placeholder="Search" oninput="search(this)" />
   <i class="icons search-cancel-icon" onclick="cancelSearch(this)">&#xe38f;</i></div>`;
 	for (let i = 0; i < palettes.length; i++) {
 		let previewCss = genPalPrevCss(palettes[i].id);
 		html += generateListItemHtml(
 			'palette',
-		    palettes[i].id,
-            palettes[i].name,
-            'setPalette',
+			palettes[i].id,
+			palettes[i].name,
+			'setPalette',
 			`<div class="lstIprev" style="${previewCss}"></div>`,
 			palettes[i].class,
-        );
+		);
 	}
 
-	d.getElementById('selectPalette').innerHTML=html;
+	d.getElementById('selectPalette').innerHTML = html;
 }
 
-function redrawPalPrev()
-{
+function redrawPalPrev() {
 	let palettes = d.querySelectorAll('#selectPalette .lstI');
 	for (let i = 0; i < palettes.length; i++) {
 		let id = palettes[i].dataset.id;
@@ -645,8 +673,7 @@ function redrawPalPrev()
 	}
 }
 
-function genPalPrevCss(id)
-{
+function genPalPrevCss(id) {
 	if (!palettesData) {
 		return;
 	}
@@ -673,7 +700,7 @@ function genPalPrevCss(id)
 		let b;
 		let index = false;
 		if (Array.isArray(element)) {
-			index = element[0]/255*100;
+			index = element[0] / 255 * 100;
 			r = element[1];
 			g = element[2];
 			b = element[3];
@@ -692,16 +719,15 @@ function genPalPrevCss(id)
 		if (index === false) {
 			index = j / paletteData.length * 100;
 		}
-		
+
 		gradient.push(`rgb(${r},${g},${b}) ${index}%`);
 	}
 
 	return `background: linear-gradient(to right,${gradient.join()});`;
 }
 
-function generateListItemHtml(listName, id, name, clickAction, extraHtml = '', extraClass = '')
-{
-    return `<div class="lstI btn fxbtn ${extraClass}" data-id="${id}" onClick="${clickAction}(${id})">
+function generateListItemHtml(listName, id, name, clickAction, extraHtml = '', extraClass = '') {
+	return `<div class="lstI btn fxbtn ${extraClass}" data-id="${id}" onClick="${clickAction}(${id})">
 			<label class="radio fxchkl">
 				<input type="radio" value="${id}" name="${listName}">
 				<span class="radiomark"></span>
@@ -712,89 +738,85 @@ function generateListItemHtml(listName, id, name, clickAction, extraHtml = '', e
       ${extraHtml}
 		</div>`;
 }
-  
-function btype(b){
-  switch (b) {
-    case 32: return "ESP32";
-    case 82: return "ESP8266";
-  }
-  return "?";
+
+function btype(b) {
+	switch (b) {
+		case 32: return "ESP32";
+		case 82: return "ESP8266";
+	}
+	return "?";
 }
-function bname(o){
-  if (o.name=="WLED") return o.ip;
-  return o.name;
+function bname(o) {
+	if (o.name == "WLED") return o.ip;
+	return o.name;
 }
 
-function populateNodes(i,n)
-{
-	var cn="";
-	var urows="";
-  var nnodes = 0;
+function populateNodes(i, n) {
+	var cn = "";
+	var urows = "";
+	var nnodes = 0;
 	if (n.nodes) {
-		n.nodes.sort((a,b) => (a.name).localeCompare(b.name));
-		for (var x=0;x<n.nodes.length;x++) {
+		n.nodes.sort((a, b) => (a.name).localeCompare(b.name));
+		for (var x = 0; x < n.nodes.length; x++) {
 			var o = n.nodes[x];
 			if (o.name) {
 				var url = `<button class="btn btna-icon tab" onclick="location.assign('http://${o.ip}');">${bname(o)}</button>`;
-				urows += inforow(url,`${btype(o.type)}<br><i>${o.vid==0?"N/A":o.vid}</i>`);
-        nnodes++;
+				urows += inforow(url, `${btype(o.type)}<br><i>${o.vid == 0 ? "N/A" : o.vid}</i>`);
+				nnodes++;
 			}
 		}
 	}
-  if (i.ndc < 0) cn += `Instance List is disabled.`;
-  else if (nnodes == 0) cn += `No other instances found.`;
+	if (i.ndc < 0) cn += `Instance List is disabled.`;
+	else if (nnodes == 0) cn += `No other instances found.`;
 	cn += `<table class="infot">
     ${urows}
-    ${inforow("Current instance:",i.name)}
+    ${inforow("Current instance:", i.name)}
   </table>`;
 	d.getElementById('kn').innerHTML = cn;
 }
 
-function loadNodes()
-{
+function loadNodes() {
 	var url = '/json/nodes';
 	if (loc) {
 		url = `http://${locip}/json/nodes`;
 	}
-	
+
 	fetch
-	(url, {
-		method: 'get'
-	})
-	.then(res => {
-		if (!res.ok) {
-			showToast('Could not load Node list!', true);
-		}
-		return res.json();
-	})
-	.then(json => {
-		populateNodes(lastinfo, json);
-	})
-	.catch(function (error) {
-		showToast(error, true);
-		console.log(error);
-	});
+		(url, {
+			method: 'get'
+		})
+		.then(res => {
+			if (!res.ok) {
+				showToast('Could not load Node list!', true);
+			}
+			return res.json();
+		})
+		.then(json => {
+			populateNodes(lastinfo, json);
+		})
+		.catch(function (error) {
+			showToast(error, true);
+			console.log(error);
+		});
 }
 
-function updateTrail(e, slidercol)
-{
-	if (e==null) return;
+function updateTrail(e, slidercol) {
+	if (e == null) return;
 	var max = e.hasAttribute('max') ? e.attributes.max.value : 255;
 	var progress = e.value * 100 / max;
 	progress = parseInt(progress);
 	var scol;
 	switch (slidercol) {
-	case 1: scol = "#f00"; break;
-	case 2: scol = "#0f0"; break;
-	case 3: scol = "#00f"; break;
-	default: scol = "var(--c-f)";
+		case 1: scol = "#f00"; break;
+		case 2: scol = "#0f0"; break;
+		case 3: scol = "#00f"; break;
+		default: scol = "var(--c-f)";
 	}
 	var val = `linear-gradient(90deg, ${scol} ${progress}%, var(--c-4) ${progress}%)`;
 	e.parentNode.getElementsByClassName('sliderdisplay')[0].style.background = val;
 }
 
-function updateBubble(e)
-{
+function updateBubble(e) {
 	var bubble = e.target.parentNode.getElementsByTagName('output')[0];
 
 	if (bubble) {
@@ -802,16 +824,14 @@ function updateBubble(e)
 	}
 }
 
-function toggleBubble(e)
-{
+function toggleBubble(e) {
 	e.target.parentNode.querySelector('output').classList.toggle('hidden');
 }
 
-function updateLen(s)
-{
+function updateLen(s) {
 	if (!d.getElementById(`seg${s}s`)) return;
 	var start = parseInt(d.getElementById(`seg${s}s`).value);
-	var stop	= parseInt(d.getElementById(`seg${s}e`).value);
+	var stop = parseInt(d.getElementById(`seg${s}e`).value);
 	var len = stop - start;
 	var out = "(delete)";
 	if (len > 1) {
@@ -820,20 +840,18 @@ function updateLen(s)
 		out = "1 LED";
 	}
 
-	if (d.getElementById(`seg${s}grp`) != null)
-	{
+	if (d.getElementById(`seg${s}grp`) != null) {
 		var grp = parseInt(d.getElementById(`seg${s}grp`).value);
 		var spc = parseInt(d.getElementById(`seg${s}spc`).value);
 		if (grp == 0) grp = 1;
-		var virt = Math.ceil(len/(grp + spc));
+		var virt = Math.ceil(len / (grp + spc));
 		if (!isNaN(virt) && (grp > 1 || spc > 0)) out += ` (${virt} virtual)`;
 	}
 
 	d.getElementById(`seg${s}len`).innerHTML = out;
 }
 
-function updatePA()
-{
+function updatePA() {
 	var ps = d.getElementsByClassName("seg");
 	for (let i = 0; i < ps.length; i++) {
 		ps[i].style.backgroundColor = "var(--c-2)";
@@ -844,18 +862,17 @@ function updatePA()
 	}
 	if (currentPreset > 0) {
 		var acv = d.getElementById(`p${currentPreset}o`);
-		if (acv && !expanded[currentPreset+100])
+		if (acv && !expanded[currentPreset + 100])
 			acv.style.background = "var(--c-6)";
 		acv = d.getElementById(`p${currentPreset}qlb`);
 		if (acv) acv.style.background = "var(--c-6)";
 	}
 }
 
-function updateUI()
-{
-	d.getElementById('buttonPower').className = (isOn) ? "active":"";
-	d.getElementById('buttonNl').className = (nlA) ? "active":"";
-	d.getElementById('buttonSync').className = (syncSend) ? "active":"";
+function updateUI() {
+	d.getElementById('buttonPower').className = (isOn) ? "active" : "";
+	d.getElementById('buttonNl').className = (nlA) ? "active" : "";
+	d.getElementById('buttonSync').className = (syncSend) ? "active" : "";
 
 	updateTrail(d.getElementById('sliderBri'));
 	updateTrail(d.getElementById('sliderSpeed'));
@@ -868,12 +885,11 @@ function updateUI()
 	updateRgb();
 }
 
-function displayRover(i,s)
-{
-	d.getElementById('rover').style.transform = (i.live && s.lor == 0) ? "translateY(0px)":"translateY(100%)";
-	var sour = i.lip ? i.lip:""; if (sour.length > 2) sour = " from " + sour;
+function displayRover(i, s) {
+	d.getElementById('rover').style.transform = (i.live && s.lor == 0) ? "translateY(0px)" : "translateY(100%)";
+	var sour = i.lip ? i.lip : ""; if (sour.length > 2) sour = " from " + sour;
 	d.getElementById('lv').innerHTML = `WLED is receiving live ${i.lm} data${sour}`;
-	d.getElementById('roverstar').style.display = (i.live && s.lor) ? "block":"none";
+	d.getElementById('roverstar').style.display = (i.live && s.lor) ? "block" : "none";
 }
 
 function compare(a, b) {
@@ -882,11 +898,14 @@ function compare(a, b) {
 }
 function cmpP(a, b) {
 	if (!a[1].n) return (a[0] > b[0]);
-  return a[1].n.localeCompare(b[1].n,undefined, {numeric: true});
+	return a[1].n.localeCompare(b[1].n, undefined, { numeric: true });
 }
 
 var jsonTimeout;
 function requestJson(command, rinfo = true, verbose = true) {
+
+	// console.log(command);
+
 	d.getElementById('connind').style.backgroundColor = "#a90";
 	lastUpdate = new Date();
 	if (!jsonTimeout) jsonTimeout = setTimeout(showErrorToast, 3000);
@@ -894,247 +913,250 @@ function requestJson(command, rinfo = true, verbose = true) {
 	var e1 = d.getElementById('fxlist');
 	var e2 = d.getElementById('selectPalette');
 
-	var url = rinfo ? '/json/si': (command ? '/json/state':'/json');
+	var url = rinfo ? '/json/si' : (command ? '/json/state' : '/json');
 	if (loc) {
 		url = `http://${locip}${url}`;
 	}
 
-	var type = command ? 'post':'get';
-	if (command)
-	{
-    command.v = verbose;
-    command.time = Math.floor(Date.now() / 1000);
+	var type = command ? 'post' : 'get';
+	if (command) {
+		command.v = verbose;
+		command.time = Math.floor(Date.now() / 1000);
 		req = JSON.stringify(command);
 		//console.log(req);
 	}
 	fetch
-	(url, {
-		method: type,
-		headers: {
-			"Content-type": "application/json; charset=UTF-8"
-		},
-		body: req
-	})
-	.then(res => {
-		if (!res.ok) {
-			showErrorToast();
-		}
-		return res.json();
-	})
-	.then(json => {
-		clearTimeout(jsonTimeout);
-		jsonTimeout = null;
-		clearErrorToast();
-		d.getElementById('connind').style.backgroundColor = "#070";
-		if (!json) {
-			showToast('Empty response', true);
-		}
-		if (json.success) {
-			return;
-		}
-		var s = json;
-		
-		if (!command || rinfo) {
-			if (!rinfo) {
-				pmt = json.info.fs.pmt;
-				if (pmt != pmtLS || pmt == 0) {
-					setTimeout(loadPresets,99);
+		(url, {
+			method: type,
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			},
+			body: req
+		})
+		.then(res => {
+			if (!res.ok) {
+				showErrorToast();
+			}
+			return res.json();
+		})
+		.then(json => {
+
+			// console.log(json);
+			// console.log("motionSensingState="+json.state.motionSensingState);
+
+			// set motion sensing checkbox state
+			// document.getElementById("motionSensing").checked = json.state.motionSensingState;
+			document.getElementById("motionSensing").checked = json.state.motionSensingState;
+			// console.log(json.state.motionSensingState);
+
+			clearTimeout(jsonTimeout);
+			jsonTimeout = null;
+			clearErrorToast();
+			d.getElementById('connind').style.backgroundColor = "#070";
+			if (!json) {
+				showToast('Empty response', true);
+			}
+			if (json.success) {
+				return;
+			}
+			var s = json;
+			if (!command || rinfo) {
+				if (!rinfo) {
+					pmt = json.info.fs.pmt;
+					if (pmt != pmtLS || pmt == 0) {
+						setTimeout(loadPresets, 99);
+					}
+					else {
+						populatePresets(true);
+					}
+					pmtLast = pmt;
+
+					populateEffects(json.effects);
+					populatePalettes(json.palettes);
 				}
-				else {
-					populatePresets(true);
+
+				var info = json.info;
+				var name = info.name;
+				d.getElementById('namelabel').innerHTML = name;
+				if (name === "Dinnerbone") {
+					d.documentElement.style.transform = "rotate(180deg)";
+				}
+				if (info.live) {
+					name = "(Live) " + name;
+				}
+				if (loc) {
+					name = "(L) " + name;
+				}
+				d.title = name;
+				isRgbw = info.leds.wv;
+				ledCount = info.leds.count;
+				syncTglRecv = info.str;
+				maxSeg = info.leds.maxseg;
+				pmt = info.fs.pmt;
+
+				if (!command && pmt != pmtLast) {
+					setTimeout(loadPresets, 99);
 				}
 				pmtLast = pmt;
+				d.getElementById('buttonNodes').style.display = (info.ndc > 0 && window.innerWidth > 770) ? "block" : "none";
+				lastinfo = info;
+				if (isInfo) {
+					populateInfo(info);
+				}
+				s = json.state;
+				displayRover(info, s);
 
-				populateEffects(json.effects);
-				populatePalettes(json.palettes);
+				if (!rinfo) loadPalettesData();
 			}
 
-			var info = json.info;
-			var name = info.name;
-			d.getElementById('namelabel').innerHTML = name;
-			if (name === "Dinnerbone") {
-				d.documentElement.style.transform = "rotate(180deg)";
-			}
-			if (info.live) {
-				name = "(Live) " + name;
-			}
-			if (loc) {
-				name = "(L) " + name;
-			}
-			d.title = name;
-			isRgbw = info.leds.wv;
-			ledCount = info.leds.count;
-			syncTglRecv = info.str;
-      maxSeg = info.leds.maxseg;
-			pmt = info.fs.pmt;
+			isOn = s.on;
+			d.getElementById('sliderBri').value = s.bri;
+			nlA = s.nl.on;
+			nlDur = s.nl.dur;
+			nlTar = s.nl.tbri;
+			nlFade = s.nl.fade;
+			syncSend = s.udpn.send;
+			currentPreset = s.ps;
+			d.getElementById('cyToggle').checked = (s.pl >= 0);
+			d.getElementById('cycs').value = s.ccnf.min;
+			d.getElementById('cyce').value = s.ccnf.max;
+			d.getElementById('cyct').value = s.ccnf.time / 10;
+			d.getElementById('cyctt').value = s.transition / 10;
 
-			if (!command && pmt != pmtLast) {
-				setTimeout(loadPresets,99);
+			var selc = 0; var ind = 0;
+			populateSegments(s);
+			for (let i = 0; i < (s.seg || []).length; i++) {
+				if (s.seg[i].sel) { selc = ind; break; } ind++;
 			}
-			pmtLast = pmt;
-      d.getElementById('buttonNodes').style.display = (info.ndc > 0 && window.innerWidth > 770) ? "block":"none";
-			lastinfo = info;
-			if (isInfo) {
-				populateInfo(info);
+			var i = s.seg[selc];
+			if (!i) {
+				showToast('No Segments!', true);
+				updateUI();
+				return;
 			}
-			s = json.state;
-			displayRover(info, s);
 
-      if (!rinfo) loadPalettesData();
-		}
+			selColors = i.col;
+			var cd = d.getElementById('csl').children;
+			for (let e = 2; e >= 0; e--) {
+				cd[e].style.backgroundColor = "rgb(" + i.col[e][0] + "," + i.col[e][1] + "," + i.col[e][2] + ")";
+				if (isRgbw) whites[e] = parseInt(i.col[e][3]);
+				selectSlot(csel);
+			}
+			d.getElementById('sliderSpeed').value = whites[csel];
 
-		isOn = s.on;
-		d.getElementById('sliderBri').value= s.bri;
-		nlA = s.nl.on;
-		nlDur = s.nl.dur;
-		nlTar = s.nl.tbri;
-		nlFade = s.nl.fade;
-		syncSend = s.udpn.send;
-		currentPreset = s.ps;
-		d.getElementById('cyToggle').checked = (s.pl >= 0);
-		d.getElementById('cycs').value = s.ccnf.min;
-		d.getElementById('cyce').value = s.ccnf.max;
-		d.getElementById('cyct').value = s.ccnf.time /10;
-		d.getElementById('cyctt').value = s.transition /10;
+			d.getElementById('sliderSpeed').value = i.sx;
+			d.getElementById('sliderIntensity').value = i.ix;
 
-		var selc=0; var ind=0;
-		populateSegments(s);
-		for (let i = 0; i < (s.seg||[]).length; i++)
-		{
-			if(s.seg[i].sel) {selc = ind; break;} ind++;
-		}
-		var i=s.seg[selc];
-		if (!i) {
-			showToast('No Segments!', true);
+			// Effects
+			e1.querySelector(`input[name="fx"][value="${i.fx}"]`).checked = true;
+			var selElement = e1.querySelector('.selected');
+			if (selElement) {
+				selElement.classList.remove('selected')
+			}
+			var selectedEffect = e1.querySelector(`.lstI[data-id="${i.fx}"]`);
+			selectedEffect.classList.add('selected');
+			selectedFx = i.fx;
+
+			// Palettes
+			e2.querySelector(`input[name="palette"][value="${i.pal}"]`).checked = true;
+			selElement = e2.querySelector('.selected');
+			if (selElement) {
+				selElement.classList.remove('selected')
+			}
+			e2.querySelector(`.lstI[data-id="${i.pal}"]`).classList.add('selected');
+
+			if (!command) {
+				selectedEffect.scrollIntoView({
+					behavior: 'smooth',
+					block: 'nearest',
+				});
+			}
+
+			if (s.error && s.error != 0) {
+				var errstr = "";
+				switch (s.error) {
+					case 10:
+						errstr = "Could not mount filesystem!";
+						break;
+					case 11:
+						errstr = "Not enough space to save preset!";
+						break;
+					case 12:
+						errstr = "The requested preset does not exist.";
+						break;
+					case 19:
+						errstr = "A filesystem error has occured.";
+						break;
+				}
+				showToast('Error ' + s.error + ": " + errstr, true);
+			}
 			updateUI();
-			return;
-		}
-		
-		selColors = i.col;
-		var cd = d.getElementById('csl').children;
-		for (let e = 2; e >= 0; e--)
-		{
-			cd[e].style.backgroundColor = "rgb(" + i.col[e][0] + "," + i.col[e][1] + "," + i.col[e][2] + ")";
-			if (isRgbw) whites[e] = parseInt(i.col[e][3]);
-			selectSlot(csel);
-		}
-		d.getElementById('sliderSpeed').value = whites[csel];
-
-		d.getElementById('sliderSpeed').value = i.sx;
-		d.getElementById('sliderIntensity').value = i.ix;
-
-		// Effects
-		e1.querySelector(`input[name="fx"][value="${i.fx}"]`).checked = true;
-		var selElement = e1.querySelector('.selected');
-		if (selElement) {
-			selElement.classList.remove('selected')
-		}
-		var selectedEffect = e1.querySelector(`.lstI[data-id="${i.fx}"]`);
-		selectedEffect.classList.add('selected');
-		selectedFx = i.fx;
-
-		// Palettes
-		e2.querySelector(`input[name="palette"][value="${i.pal}"]`).checked = true;
-		selElement = e2.querySelector('.selected');
-		if (selElement) {
-			selElement.classList.remove('selected')
-		}
-		e2.querySelector(`.lstI[data-id="${i.pal}"]`).classList.add('selected');
-
-		if (!command) {
-			selectedEffect.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest',
-			});
-		}
-
-		if (s.error && s.error != 0) {
-      		var errstr = "";
-      		switch (s.error) {
-				case 10:
-					errstr = "Could not mount filesystem!";
-					break;
-				case 11:
-					errstr = "Not enough space to save preset!";
-					break;
-				case 12:
-					errstr = "The requested preset does not exist.";
-					break;
-				case 19:
-					errstr = "A filesystem error has occured.";
-					break;
-      		}
-      		showToast('Error ' + s.error + ": " + errstr, true);
-    	}
-		updateUI();
-	})
-	.catch(function (error) {
-		showToast(error, true);
-		console.log(error);
-	});
+		})
+		.catch(function (error) {
+			showToast(error, true);
+			console.log(error);
+		});
 }
 
 function togglePower() {
 	isOn = !isOn;
-	var obj = {"on": isOn};
-	obj.transition = parseInt(d.getElementById('cyctt').value*10);
+	var obj = { "on": isOn };
+	obj.transition = parseInt(d.getElementById('cyctt').value * 10);
 	requestJson(obj);
 }
 
 function toggleNl() {
 	nlA = !nlA;
-	if (nlA)
-	{
-		showToast(`Timer active. Your light will turn ${nlTar > 0 ? "on":"off"} ${nlFade ? "over":"after"} ${nlDur} minutes.`);
+	if (nlA) {
+		showToast(`Timer active. Your light will turn ${nlTar > 0 ? "on" : "off"} ${nlFade ? "over" : "after"} ${nlDur} minutes.`);
 	} else {
 		showToast('Timer deactivated.');
 	}
-	var obj = {"nl": {"on": nlA}};
+	var obj = { "nl": { "on": nlA } };
 	requestJson(obj);
 }
 
 function toggleSync() {
 	syncSend = !syncSend;
-	if (syncSend)
-	{
+	if (syncSend) {
 		showToast('Other lights in the network will now sync to this one.');
 	} else {
 		showToast('This light and other lights in the network will no longer sync.');
 	}
-	var obj = {"udpn": {"send": syncSend}};
+	var obj = { "udpn": { "send": syncSend } };
 	if (syncTglRecv) obj.udpn.recv = syncSend;
 	requestJson(obj);
 }
 
 function toggleLiveview() {
 	isLv = !isLv;
-	d.getElementById('liveview').style.display = (isLv) ? "block":"none";
-	var url = loc ? `http://${locip}/liveview`:"/liveview";
-	d.getElementById('liveview').src = (isLv) ? url:"about:blank";
-	d.getElementById('buttonSr').className = (isLv) ? "active":"";
+	d.getElementById('liveview').style.display = (isLv) ? "block" : "none";
+	var url = loc ? `http://${locip}/liveview` : "/liveview";
+	d.getElementById('liveview').src = (isLv) ? url : "about:blank";
+	d.getElementById('buttonSr').className = (isLv) ? "active" : "";
 	size();
 }
 
 function toggleInfo() {
-  if (isNodes) toggleNodes();
+	if (isNodes) toggleNodes();
 	isInfo = !isInfo;
 	if (isInfo) populateInfo(lastinfo);
-	d.getElementById('info').style.transform = (isInfo) ? "translateY(0px)":"translateY(100%)";
-	d.getElementById('buttonI').className = (isInfo) ? "active":"";
+	d.getElementById('info').style.transform = (isInfo) ? "translateY(0px)" : "translateY(100%)";
+	d.getElementById('buttonI').className = (isInfo) ? "active" : "";
 }
 
 function toggleNodes() {
-  if (isInfo) toggleInfo();
+	if (isInfo) toggleInfo();
 	isNodes = !isNodes;
-	d.getElementById('nodes').style.transform = (isNodes) ? "translateY(0px)":"translateY(100%)";
-  d.getElementById('buttonNodes').className = (isNodes) ? "active":"";
-  if (isNodes) loadNodes();
+	d.getElementById('nodes').style.transform = (isNodes) ? "translateY(0px)" : "translateY(100%)";
+	d.getElementById('buttonNodes').className = (isNodes) ? "active" : "";
+	if (isNodes) loadNodes();
 }
 
 function makeSeg() {
 	var ns = 0;
 	if (lowestUnused > 0) {
-		var pend = d.getElementById(`seg${lowestUnused -1}e`).value;
+		var pend = d.getElementById(`seg${lowestUnused - 1}e`).value;
 		if (pend < ledCount) ns = pend;
 	}
 	var cn = `<div class="seg">
@@ -1149,7 +1171,7 @@ function makeSeg() {
 						<td class="segtd">Stop LED</td>
 					</tr>
 					<tr>
-						<td class="segtd"><input class="noslide segn" id="seg${lowestUnused}s" type="number" min="0" max="${ledCount-1}" value="${ns}" oninput="updateLen(${lowestUnused})"></td>
+						<td class="segtd"><input class="noslide segn" id="seg${lowestUnused}s" type="number" min="0" max="${ledCount - 1}" value="${ns}" oninput="updateLen(${lowestUnused})"></td>
 						<td class="segtd"><input class="noslide segn" id="seg${lowestUnused}e" type="number" min="0" max="${ledCount}" value="${ledCount}" oninput="updateLen(${lowestUnused})"></td>
 					</tr>
 				</table>
@@ -1167,12 +1189,12 @@ function resetUtil() {
 
 function makeP(i) {
 	return `
-	<input type="text" class="ptxt noslide" id="p${i}txt" autocomplete="off" maxlength=32 value="${(i>0)?pName(i):""}" placeholder="Enter name..."/><br>
+	<input type="text" class="ptxt noslide" id="p${i}txt" autocomplete="off" maxlength=32 value="${(i > 0) ? pName(i) : ""}" placeholder="Enter name..."/><br>
 	<div class="c">Quick load label: <input type="text" class="stxt noslide" maxlength=2 value="${qlName(i)}" id="p${i}ql" autocomplete="off"/></div>
 	<div class="h">(leave empty for no Quick load button)</div>
 	<label class="check revchkl">
-		${(i>0)?"Overwrite with state":"Use current state"}
-		<input type="checkbox" id="p${i}cstgl" onchange="tglCs(${i})" ${(i>0)?"":"checked"}>
+		${(i > 0) ? "Overwrite with state" : "Use current state"}
+		<input type="checkbox" id="p${i}cstgl" onchange="tglCs(${i})" ${(i > 0) ? "" : "checked"}>
 		<span class="checkmark schk"></span>
 	</label><br>
 	<div class="po2" id="p${i}o2">
@@ -1191,16 +1213,16 @@ function makeP(i) {
 			<span class="checkmark schk"></span>
 		</label>
 	</div>
-	<div class="c">Save to ID <input class="noslide" id="p${i}id" type="number" oninput="checkUsed(${i})" max=250 min=1 value=${(i>0)?i:getLowestUnusedP()}></div>
+	<div class="c">Save to ID <input class="noslide" id="p${i}id" type="number" oninput="checkUsed(${i})" max=250 min=1 value=${(i > 0) ? i : getLowestUnusedP()}></div>
 	<div class="c">
-		<button class="btn btn-i btn-p" onclick="saveP(${i})"><i class="icons btn-icon">&#xe390;</i>${(i>0)?"Save changes":"Save preset"}</button>
-		${(i>0)?'<button class="btn btn-i btn-p" onclick="delP('+i+')"><i class="icons btn-icon">&#xe037;</i>Delete preset</button>':
-						'<button class="btn btn-p" onclick="resetPUtil()">Cancel</button>'}
+		<button class="btn btn-i btn-p" onclick="saveP(${i})"><i class="icons btn-icon">&#xe390;</i>${(i > 0) ? "Save changes" : "Save preset"}</button>
+		${(i > 0) ? '<button class="btn btn-i btn-p" onclick="delP(' + i + ')"><i class="icons btn-icon">&#xe037;</i>Delete preset</button>' :
+			'<button class="btn btn-p" onclick="resetPUtil()">Cancel</button>'}
 	</div>
-	<div class="pwarn ${(i>0)?"bp":""} c" id="p${i}warn">
+	<div class="pwarn ${(i > 0) ? "bp" : ""} c" id="p${i}warn">
 
 	</div>
-	${(i>0)? ('<div class="h">ID ' +i+ '</div>'):""}`;
+	${(i > 0) ? ('<div class="h">ID ' + i + '</div>') : ""}`;
 }
 
 function makePUtil() {
@@ -1217,34 +1239,32 @@ function resetPUtil() {
 	d.getElementById('putil').innerHTML = cn;
 }
 
-function tglCs(i){
+function tglCs(i) {
 	var pss = d.getElementById(`p${i}cstgl`).checked;
-	d.getElementById(`p${i}o1`).style.display = pss? "block" : "none";
-	d.getElementById(`p${i}o2`).style.display = !pss? "block" : "none";
+	d.getElementById(`p${i}o1`).style.display = pss ? "block" : "none";
+	d.getElementById(`p${i}o2`).style.display = !pss ? "block" : "none";
 }
 
-function selSegEx(s)
-{
-	var obj = {"seg":[]};
-	for (let i=0; i<=lSeg; i++){
-		obj.seg.push({"sel":(i==s)?true:false});
+function selSegEx(s) {
+	var obj = { "seg": [] };
+	for (let i = 0; i <= lSeg; i++) {
+		obj.seg.push({ "sel": (i == s) ? true : false });
 	}
 	requestJson(obj);
 }
 
-function selSeg(s){
+function selSeg(s) {
 	var sel = d.getElementById(`seg${s}sel`).checked;
-	var obj = {"seg": {"id": s, "sel": sel}};
+	var obj = { "seg": { "id": s, "sel": sel } };
 	requestJson(obj, false);
 }
 
-function setSeg(s){
+function setSeg(s) {
 	var start = parseInt(d.getElementById(`seg${s}s`).value);
-	var stop	= parseInt(d.getElementById(`seg${s}e`).value);
-	if (stop <= start) {delSeg(s); return;}
-	var obj = {"seg": {"id": s, "start": start, "stop": stop}};
-	if (d.getElementById(`seg${s}grp`))
-	{
+	var stop = parseInt(d.getElementById(`seg${s}e`).value);
+	if (stop <= start) { delSeg(s); return; }
+	var obj = { "seg": { "id": s, "start": start, "stop": stop } };
+	if (d.getElementById(`seg${s}grp`)) {
 		var grp = parseInt(d.getElementById(`seg${s}grp`).value);
 		var spc = parseInt(d.getElementById(`seg${s}spc`).value);
 		obj.seg.grp = grp;
@@ -1253,36 +1273,36 @@ function setSeg(s){
 	requestJson(obj);
 }
 
-function delSeg(s){
+function delSeg(s) {
 	if (segCount < 2) {
 		showToast("You need to have multiple segments to delete one!");
 		return;
 	}
 	expanded[s] = false;
 	segCount--;
-	var obj = {"seg": {"id": s, "stop": 0}};
+	var obj = { "seg": { "id": s, "stop": 0 } };
 	requestJson(obj, false);
 }
 
-function setRev(s){
+function setRev(s) {
 	var rev = d.getElementById(`seg${s}rev`).checked;
-	var obj = {"seg": {"id": s, "rev": rev}};
+	var obj = { "seg": { "id": s, "rev": rev } };
 	requestJson(obj, false);
 }
 
-function setMi(s){
+function setMi(s) {
 	var mi = d.getElementById(`seg${s}mi`).checked;
-	var obj = {"seg": {"id": s, "mi": mi}};
+	var obj = { "seg": { "id": s, "mi": mi } };
 	requestJson(obj, false);
 }
 
-function setSegPwr(s){
-	var obj = {"seg": {"id": s, "on": !powered[s]}};
+function setSegPwr(s) {
+	var obj = { "seg": { "id": s, "on": !powered[s] } };
 	requestJson(obj);
 }
 
-function setSegBri(s){
-	var obj = {"seg": {"id": s, "bri": parseInt(d.getElementById(`seg${s}bri`).value)}};
+function setSegBri(s) {
+	var obj = { "seg": { "id": s, "bri": parseInt(d.getElementById(`seg${s}bri`).value) } };
 	requestJson(obj);
 }
 
@@ -1298,12 +1318,11 @@ function setX(ind = null) {
 	}
 	d.querySelector(`#fxlist .lstI[data-id="${ind}"]`).classList.add('selected');
 
-	var obj = {"seg": {"fx": parseInt(ind)}};
+	var obj = { "seg": { "fx": parseInt(ind) } };
 	requestJson(obj);
 }
 
-function setPalette(paletteId = null)
-{
+function setPalette(paletteId = null) {
 	if (paletteId === null) {
 		paletteId = parseInt(d.querySelector('#selectPalette input[name="palette"]:checked').value);
 	} else {
@@ -1314,53 +1333,52 @@ function setPalette(paletteId = null)
 		selElement.classList.remove('selected')
 	}
 	d.querySelector(`#selectPalette .lstI[data-id="${paletteId}"]`).classList.add('selected');
-	var obj = {"seg": {"pal": paletteId}};
+	var obj = { "seg": { "pal": paletteId } };
 	requestJson(obj);
 }
 
 function setBri() {
-	var obj = {"bri": parseInt(d.getElementById('sliderBri').value)};
-	obj.transition = parseInt(d.getElementById('cyctt').value*10);
+	var obj = { "bri": parseInt(d.getElementById('sliderBri').value) };
+	obj.transition = parseInt(d.getElementById('cyctt').value * 10);
 	requestJson(obj);
 }
 
 function setSpeed() {
-	var obj = {"seg": {"sx": parseInt(d.getElementById('sliderSpeed').value)}};
+	var obj = { "seg": { "sx": parseInt(d.getElementById('sliderSpeed').value) } };
 	requestJson(obj, false);
 }
 
 function setIntensity() {
-	var obj = {"seg": {"ix": parseInt(d.getElementById('sliderIntensity').value)}};
+	var obj = { "seg": { "ix": parseInt(d.getElementById('sliderIntensity').value) } };
 	requestJson(obj, false);
 }
 
 function setLor(i) {
-	var obj = {"lor": i};
+	var obj = { "lor": i };
 	requestJson(obj);
 }
 
 function toggleCY() {
-	var obj = {"pl" : -1};
-	if (d.getElementById('cyToggle').checked)
-	{
-		obj = {"pl": 0, "ccnf": {"min": parseInt(d.getElementById('cycs').value), "max": parseInt(d.getElementById('cyce').value), "time": parseInt(d.getElementById('cyct').value*10)}};
-		obj.transition = parseInt(d.getElementById('cyctt').value*10);
+	var obj = { "pl": -1 };
+	if (d.getElementById('cyToggle').checked) {
+		obj = { "pl": 0, "ccnf": { "min": parseInt(d.getElementById('cycs').value), "max": parseInt(d.getElementById('cyce').value), "time": parseInt(d.getElementById('cyct').value * 10) } };
+		obj.transition = parseInt(d.getElementById('cyctt').value * 10);
 	}
 
 	requestJson(obj);
 }
 
 function setPreset(i) {
-	var obj = {"ps": i};
+	var obj = { "ps": i };
 
-	showToast("Loading preset " + pName(i) +" (" + i + ")");
+	showToast("Loading preset " + pName(i) + " (" + i + ")");
 
 	requestJson(obj);
 }
 
 function saveP(i) {
 	pI = parseInt(d.getElementById(`p${i}id`).value);
-	if (!pI || pI < 1) pI = (i>0) ? i : getLowestUnusedP();
+	if (!pI || pI < 1) pI = (i > 0) ? i : getLowestUnusedP();
 	pN = d.getElementById(`p${i}txt`).value;
 	if (pN == "") pN = "Preset " + pI;
 	var obj = {};
@@ -1377,9 +1395,9 @@ function saveP(i) {
 				d.getElementById(`p${i}warn`).innerHTML = "&#9888; Syntax error in custom JSON API command";
 				return;
 			} else if (raw.indexOf("Please") == 0) {
-        d.getElementById(`p${i}warn`).innerHTML = "&#9888; Please refresh the page before modifying this preset";
+				d.getElementById(`p${i}warn`).innerHTML = "&#9888; Please refresh the page before modifying this preset";
 				return;
-      }
+			}
 		}
 		obj.o = true;
 	} else {
@@ -1390,25 +1408,25 @@ function saveP(i) {
 	var pQN = d.getElementById(`p${i}ql`).value;
 	if (pQN.length > 0) obj.ql = pQN;
 
-  showToast("Saving " + pN +" (" + pI + ")");
+	showToast("Saving " + pN + " (" + pI + ")");
 	requestJson(obj);
 	if (obj.o) {
 		pJson[pI] = obj;
-    delete pJson[pI].psave;
-    delete pJson[pI].o;
-    delete pJson[pI].v;
-    delete pJson[pI].time;
+		delete pJson[pI].psave;
+		delete pJson[pI].o;
+		delete pJson[pI].v;
+		delete pJson[pI].time;
 	} else {
-		pJson[pI] = {"n":pN, "win":"Please refresh the page to see this newly saved command."};
+		pJson[pI] = { "n": pN, "win": "Please refresh the page to see this newly saved command." };
 		if (obj.win) pJson[pI].win = obj.win;
-		if (obj.ql)  pJson[pI].ql = obj.ql;
+		if (obj.ql) pJson[pI].ql = obj.ql;
 	}
 	populatePresets();
 	resetPUtil();
 }
 
 function delP(i) {
-	var obj = {"pdel": i};
+	var obj = { "pdel": i };
 	requestJson(obj);
 	delete pJson[i];
 	populatePresets();
@@ -1418,13 +1436,13 @@ function selectSlot(b) {
 	csel = b;
 	var cd = d.getElementById('csl').children;
 	for (let i = 0; i < cd.length; i++) {
-		cd[i].style.border="2px solid white";
-		cd[i].style.margin="5px";
-		cd[i].style.width="42px";
+		cd[i].style.border = "2px solid white";
+		cd[i].style.margin = "5px";
+		cd[i].style.width = "42px";
 	}
-	cd[csel].style.border="5px solid white";
-	cd[csel].style.margin="2px";
-	cd[csel].style.width="50px";
+	cd[csel].style.border = "5px solid white";
+	cd[csel].style.margin = "2px";
+	cd[csel].style.width = "50px";
 	cpick.color.set(cd[csel].style.backgroundColor);
 	d.getElementById('sliderW').value = whites[csel];
 	updateTrail(d.getElementById('sliderW'));
@@ -1434,34 +1452,30 @@ function selectSlot(b) {
 }
 
 var lasth = 0;
-function pC(col)
-{
-	if (col == "rnd")
-	{
-	col = {h: 0, s: 0, v: 100};
-	col.s = Math.floor((Math.random() * 50) + 50);
-	do {
-		col.h = Math.floor(Math.random() * 360);
-	} while (Math.abs(col.h - lasth) < 50);
-	lasth = col.h;
+function pC(col) {
+	if (col == "rnd") {
+		col = { h: 0, s: 0, v: 100 };
+		col.s = Math.floor((Math.random() * 50) + 50);
+		do {
+			col.h = Math.floor(Math.random() * 360);
+		} while (Math.abs(col.h - lasth) < 50);
+		lasth = col.h;
 	}
 	cpick.color.set(col);
 	setColor(0);
 }
 
-function updateRgb()
-{
+function updateRgb() {
 	var col = cpick.color.rgb;
 	var s = d.getElementById('sliderR');
-	s.value = col.r; updateTrail(s,1);
+	s.value = col.r; updateTrail(s, 1);
 	s = d.getElementById('sliderG');
-	s.value = col.g; updateTrail(s,2);
+	s.value = col.g; updateTrail(s, 2);
 	s = d.getElementById('sliderB');
-	s.value = col.b; updateTrail(s,3);
+	s.value = col.b; updateTrail(s, 3);
 }
 
-function updateHex()
-{
+function updateHex() {
 	var str = cpick.color.hexString;
 	str = str.substring(1);
 	var w = whites[csel];
@@ -1472,15 +1486,14 @@ function updateHex()
 
 function hexEnter() {
 	d.getElementById('hexcnf').style.backgroundColor = "var(--c-6)";
-	if(event.keyCode == 13) fromHex();
+	if (event.keyCode == 13) fromHex();
 }
 
-function fromHex()
-{
+function fromHex() {
 	var str = d.getElementById('hexc').value;
 	whites[csel] = parseInt(str.substring(6), 16);
 	try {
-		cpick.color.set("#" + str.substring(0,6));
+		cpick.color.set("#" + str.substring(0, 6));
 	} catch (e) {
 		cpick.color.set("#ffaa00");
 	}
@@ -1488,8 +1501,7 @@ function fromHex()
 	setColor(2);
 }
 
-function fromRgb()
-{
+function fromRgb() {
 	var r = d.getElementById('sliderR').value;
 	var g = d.getElementById('sliderG').value;
 	var b = d.getElementById('sliderB').value;
@@ -1503,62 +1515,58 @@ function setColor(sr) {
 	cd[csel].style.backgroundColor = cpick.color.rgbString;
 	if (sr != 2) whites[csel] = d.getElementById('sliderW').value;
 	var col = cpick.color.rgb;
-	var obj = {"seg": {"col": [[col.r, col.g, col.b, whites[csel]],[],[]]}};
+	var obj = { "seg": { "col": [[col.r, col.g, col.b, whites[csel]], [], []] } };
 	if (csel == 1) {
-		obj = {"seg": {"col": [[],[col.r, col.g, col.b, whites[csel]],[]]}};
+		obj = { "seg": { "col": [[], [col.r, col.g, col.b, whites[csel]], []] } };
 	} else if (csel == 2) {
-		obj = {"seg": {"col": [[],[],[col.r, col.g, col.b, whites[csel]]]}};
+		obj = { "seg": { "col": [[], [], [col.r, col.g, col.b, whites[csel]]] } };
 	}
 	updateHex();
 	updateRgb();
-	obj.transition = parseInt(d.getElementById('cyctt').value*10);
+	obj.transition = parseInt(d.getElementById('cyctt').value * 10);
 	requestJson(obj);
 }
 
 var hc = 0;
-setInterval(function(){if (!isInfo) return; hc+=18; if (hc>300) hc=0; if (hc>200)hc=306; if (hc==144) hc+=36; if (hc==108) hc+=18;
-d.getElementById('heart').style.color = `hsl(${hc}, 100%, 50%)`;}, 910);
+setInterval(function () {
+	if (!isInfo) return; hc += 18; if (hc > 300) hc = 0; if (hc > 200) hc = 306; if (hc == 144) hc += 36; if (hc == 108) hc += 18;
+	d.getElementById('heart').style.color = `hsl(${hc}, 100%, 50%)`;
+}, 910);
 
-function openGH()
-{
+function openGH() {
 	window.open("https://github.com/Aircoookie/WLED/wiki");
 }
 
 var cnfr = false;
-function cnfReset()
-{
-	if (!cnfr)
-	{
+function cnfReset() {
+	if (!cnfr) {
 		var bt = d.getElementById('resetbtn');
-	bt.style.color = "#f00";
-	bt.innerHTML = "Confirm Reboot";
-	cnfr = true; return;
+		bt.style.color = "#f00";
+		bt.innerHTML = "Confirm Reboot";
+		cnfr = true; return;
 	}
 	window.location.href = "/reset";
 }
 
 var cnfrS = false;
-function rSegs()
-{
+function rSegs() {
 	var bt = d.getElementById('rsbtn');
-	if (!cnfrS)
-	{
-	bt.style.color = "#f00";
-	bt.innerHTML = "Confirm reset";
-	cnfrS = true; return;
+	if (!cnfrS) {
+		bt.style.color = "#f00";
+		bt.innerHTML = "Confirm reset";
+		cnfrS = true; return;
 	}
 	cnfrS = false;
 	bt.style.color = "#fff";
 	bt.innerHTML = "Reset segments";
-	var obj = {"seg":[{"start":0,"stop":ledCount,"sel":true}]};
-	for (let i=1; i<=lSeg; i++){
-		obj.seg.push({"stop":0});
+	var obj = { "seg": [{ "start": 0, "stop": ledCount, "sel": true }] };
+	for (let i = 1; i <= lSeg; i++) {
+		obj.seg.push({ "stop": 0 });
 	}
 	requestJson(obj);
 }
 
-function loadPalettesData()
-{
+function loadPalettesData() {
 	if (palettesData) return;
 	const lsKey = "wledPalx";
 	var palettesDataJson = localStorage.getItem(lsKey);
@@ -1570,11 +1578,11 @@ function loadPalettesData()
 				palettesData = palettesDataJson.p;
 				return;
 			}
-		} catch (e) {}
+		} catch (e) { }
 	}
 
 	palettesData = {};
-	getPalettesData(0, function() {
+	getPalettesData(0, function () {
 		localStorage.setItem(lsKey, JSON.stringify({
 			p: palettesData,
 			vid: lastinfo.vid
@@ -1583,8 +1591,7 @@ function loadPalettesData()
 	});
 }
 
-function getPalettesData(page, callback)
-{
+function getPalettesData(page, callback) {
 	var url = `/json/palx?page=${page}`;
 	if (loc) {
 		url = `http://${locip}${url}`;
@@ -1596,30 +1603,30 @@ function getPalettesData(page, callback)
 			"Content-type": "application/json; charset=UTF-8"
 		}
 	})
-	.then(res => {
-		if (!res.ok) {
-			showErrorToast();
-		}
-		return res.json();
-	})
-	.then(json => {
-		palettesData = Object.assign({}, palettesData, json.p);
-		if (page < json.m) {
-			getPalettesData(page + 1, callback);
-		} else {
-			callback();
-		}
-	})
-	.catch(function (error) {
-		showToast(error, true);
-		console.log(error);
-		presetError(false);
-	});
+		.then(res => {
+			if (!res.ok) {
+				showErrorToast();
+			}
+			return res.json();
+		})
+		.then(json => {
+			palettesData = Object.assign({}, palettesData, json.p);
+			if (page < json.m) {
+				getPalettesData(page + 1, callback);
+			} else {
+				callback();
+			}
+		})
+		.catch(function (error) {
+			showToast(error, true);
+			console.log(error);
+			presetError(false);
+		});
 }
 
 function search(searchField) {
 	var searchText = searchField.value.toUpperCase();
-  searchField.parentElement.getElementsByClassName('search-cancel-icon')[0].style.display = (searchText.length < 1)?"none":"inline";
+	searchField.parentElement.getElementsByClassName('search-cancel-icon')[0].style.display = (searchText.length < 1) ? "none" : "inline";
 	var elements = searchField.parentElement.parentElement.querySelectorAll('.lstI');
 	for (i = 0; i < elements.length; i++) {
 		var item = elements[i];
@@ -1633,26 +1640,25 @@ function search(searchField) {
 }
 
 function cancelSearch(ic) {
-  var searchField = ic.parentElement.getElementsByClassName('search')[0];
-  searchField.value = "";
-  search(searchField);
-  searchField.focus();
+	var searchField = ic.parentElement.getElementsByClassName('search')[0];
+	searchField.value = "";
+	search(searchField);
+	searchField.focus();
 }
 
-function expand(i,a)
-{
+function expand(i, a) {
 	if (!a) expanded[i] = !expanded[i];
-	d.getElementById('seg' +i).style.display = (expanded[i]) ? "block":"none";
-	d.getElementById('sege' +i).style.transform = (expanded[i]) ? "rotate(180deg)":"rotate(0deg)";
+	d.getElementById('seg' + i).style.display = (expanded[i]) ? "block" : "none";
+	d.getElementById('sege' + i).style.transform = (expanded[i]) ? "rotate(180deg)" : "rotate(0deg)";
 	if (i > 100) { //presets
-		var p = i-100;
-		d.getElementById(`p${p}o`).style.background = (expanded[i] || p != currentPreset)?"var(--c-2)":"var(--c-6)";
-		if (d.getElementById('seg' +i).innerHTML == "") {
-      d.getElementById('seg' +i).innerHTML = makeP(p);
-      var papi = papiVal(p);
-      d.getElementById(`p${p}api`).value = papi;
-      if (papi.indexOf("Please") == 0) d.getElementById(`p${p}cstgl`).checked = true;
-      tglCs(p);
+		var p = i - 100;
+		d.getElementById(`p${p}o`).style.background = (expanded[i] || p != currentPreset) ? "var(--c-2)" : "var(--c-6)";
+		if (d.getElementById('seg' + i).innerHTML == "") {
+			d.getElementById('seg' + i).innerHTML = makeP(p);
+			var papi = papiVal(p);
+			d.getElementById(`p${p}api`).value = papi;
+			if (papi.indexOf("Please") == 0) d.getElementById(`p${p}cstgl`).checked = true;
+			tglCs(p);
 		}
 	}
 }
@@ -1668,7 +1674,7 @@ const _C = d.querySelector('.container'), N = 4;
 
 let iSlide = 0, x0 = null, scrollS = 0, locked = false, w;
 
-function unify(e) {	return e.changedTouches ? e.changedTouches[0] : e; }
+function unify(e) { return e.changedTouches ? e.changedTouches[0] : e; }
 
 function hasIroClass(classList) {
 	for (var i = 0; i < classList.length; i++) {
@@ -1694,16 +1700,16 @@ function lock(e) {
 }
 
 function move(e) {
-	if(!locked || pcMode) return;
+	if (!locked || pcMode) return;
 	var clientX = unify(e).clientX;
 	var dx = clientX - x0;
 	var s = Math.sign(dx);
-	var f = +(s*dx/w).toFixed(2);
+	var f = +(s * dx / w).toFixed(2);
 
-  if((clientX != 0) &&
-	 (iSlide > 0 || s < 0) && (iSlide < N - 1 || s > 0) &&
-     f > 0.12 &&
-     d.getElementsByClassName("tabcontent")[iSlide].scrollTop == scrollS) {
+	if ((clientX != 0) &&
+		(iSlide > 0 || s < 0) && (iSlide < N - 1 || s > 0) &&
+		f > 0.12 &&
+		d.getElementsByClassName("tabcontent")[iSlide].scrollTop == scrollS) {
 		_C.style.setProperty('--i', iSlide -= s);
 		f = 1 - f;
 		updateTablinks(iSlide);
@@ -1715,7 +1721,7 @@ function move(e) {
 
 function size() {
 	w = window.innerWidth;
-  d.getElementById('buttonNodes').style.display = (lastinfo.ndc > 0 && w > 770) ? "block":"none";
+	d.getElementById('buttonNodes').style.display = (lastinfo.ndc > 0 && w > 770) ? "block" : "none";
 	var h = d.getElementById('top').clientHeight;
 	sCol('--th', h + "px");
 	sCol('--bh', d.getElementById('bot').clientHeight + "px");
@@ -1724,23 +1730,22 @@ function size() {
 	togglePcMode();
 }
 
-function togglePcMode(fromB = false)
-{
+function togglePcMode(fromB = false) {
 	if (fromB) {
-	pcModeA = !pcModeA;
-	localStorage.setItem('pcm', pcModeA);
-	pcMode = pcModeA;
+		pcModeA = !pcModeA;
+		localStorage.setItem('pcm', pcModeA);
+		pcMode = pcModeA;
 	}
 	if (w < 1250 && !pcMode) return;
 	if (!fromB && ((w < 1250 && lastw < 1250) || (w >= 1250 && lastw >= 1250))) return;
 	openTab(0, true);
-	if (w < 1250) {pcMode = false;}
+	if (w < 1250) { pcMode = false; }
 	else if (pcModeA && !fromB) pcMode = pcModeA;
 	updateTablinks(0);
-	d.getElementById('buttonPcm').className = (pcMode) ? "active":"";
-	d.getElementById('bot').style.height = (pcMode && !cfg.comp.pcmbot) ? "0":"auto";
+	d.getElementById('buttonPcm').className = (pcMode) ? "active" : "";
+	d.getElementById('bot').style.height = (pcMode && !cfg.comp.pcmbot) ? "0" : "auto";
 	sCol('--bh', d.getElementById('bot').clientHeight + "px");
-  _C.style.width = (pcMode)?'100%':'400%';
+	_C.style.width = (pcMode) ? '100%' : '400%';
 	lastw = w;
 }
 

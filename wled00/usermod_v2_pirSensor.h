@@ -6,6 +6,7 @@
 
 // disables pir sensor whole functionality
 // #define DISABLE_PIR_SENSOR_MONITORING
+bool motionSensingGlobal = false; //global var with information if motion sensing should be active
 
 class UsermodPirSensor : public Usermod
 {
@@ -17,18 +18,19 @@ private:
   bool keepMovementFlag;
   bool checkAnywaysFlag;
 
-  uint16_t keepMovementCounter; // counter to keep HIGH/MOVED status for a x time after movement was detected
-  uint16_t currentPreset;
+  uint32_t keepMovementCounter; // counter to keep HIGH/MOVED status for a x time after movement was detected
+  uint16_t currentPreset = 0;
   uint16_t previousPreset = 0;
 
   // *********** CONSTANTS ***********
-  const uint8_t pirSensorPin = 16;               // D0 on hardware
-  const uint32_t keepMovementDelaySeconds = 15;  // 1 min delay before switch off after the sensor state goes LOW
-  const uint16_t checkFrequencyMs = 1000;        // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
-  
+  const uint8_t pirSensorPin = 16; // D0 on hardware
+  // const uint32_t keepMovementDelayMinutes = 500000;  // 1 min delay before switch off after the sensor state goes LOW
+  const uint32_t keepMovementDelaySeconds = 3; // 1 min delay before switch off after the sensor state goes LOW
+  const uint16_t checkFrequencyMs = 1000;       // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
+
   // those presets are problematic when someone doesn't have any with that ID on fresh install
-  const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface, 0 = default
-  const uint16_t presetWhenNoMovementDetected = 2;
+  const uint16_t presetWhenMovementDetected = 5; // labeled as "Save to ID" in webinterface, 0 = default
+  const uint16_t presetWhenNoMovementDetected = 4;
 
 // debug var
 #ifdef DEBUG_PIR_SENSOR
@@ -60,14 +62,17 @@ public:
 
   void loop()
   {
-#ifndef DISABLE_PIR_SENSOR_MONITORING
-    checkPirSensorPeriodically();
-#endif
+    if (motionSensingGlobal)
+    {
+      // Serial.println("motionSensingGlobal=true");
+      checkPirSensorPeriodically();
+    }
   }
 
   // check pir sensor state and apply preset
   void checkPirSensorPeriodically()
   {
+
     currentCheckTime = millis();
     if (currentCheckTime - previousCheckTime > checkFrequencyMs)
     {
@@ -82,6 +87,8 @@ public:
 
   void checkSensorState()
   {
+    // Serial.println("checkSensorState()");
+
     currentPinState = digitalRead(pirSensorPin);
 
     if (checkAnywaysFlag && keepMovementFlag == false)
@@ -175,5 +182,31 @@ public:
   {
     // JsonObject top = root["top"];
     // userVar0 = top["great"] | 42; //The value right of the pipe "|" is the default value in case your setting was not present in cfg.json (e.g. first boot)
+  }
+
+  /*
+   * readFromJsonState() can be used to receive data clients send to the /json/state part of the JSON API (state object).
+   * Values in the state object may be modified by connected clients
+   */
+  void readFromJsonState(JsonObject &root)
+  {
+    // serializeJsonPretty(root, Serial);
+
+    // make sure "motionSensingState" is actually present in state
+    if (!root["motionSensingState"].isNull())
+    {
+      // set global var
+      motionSensingGlobal = root["motionSensingState"];
+    }
+  }
+
+  /*
+   * addToJsonState() can be used to add custom entries to the /json/state part of the JSON API (state object).
+   * Values in the state object may be modified by connected clients
+   */
+  void addToJsonState(JsonObject &root)
+  {
+    // send current variable status
+    root["motionSensingState"] = motionSensingGlobal;
   }
 };
