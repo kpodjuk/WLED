@@ -941,14 +941,6 @@ function requestJson(command, rinfo = true, verbose = true) {
 		})
 		.then(json => {
 
-			// console.log(json);
-			// console.log("motionSensingState="+json.state.motionSensingState);
-
-			// set motion sensing checkbox state
-			// document.getElementById("motionSensing").checked = json.state.motionSensingState;
-			document.getElementById("motionSensing").checked = json.state.motionSensingState;
-			// console.log(json.state.motionSensingState);
-
 			clearTimeout(jsonTimeout);
 			jsonTimeout = null;
 			clearErrorToast();
@@ -974,7 +966,8 @@ function requestJson(command, rinfo = true, verbose = true) {
 					populateEffects(json.effects);
 					populatePalettes(json.palettes);
 				}
-
+				// populate motion sensing checkbox
+				document.getElementById("motionSensing").checked = json.state.motionSensingState;
 				var info = json.info;
 				var name = info.name;
 				d.getElementById('namelabel').innerHTML = name;
