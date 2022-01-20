@@ -343,7 +343,7 @@ public:
     case 2: // brightness down
       irsend.sendNEC(reverseBits(0xFB04FF00, 32), 32, repeats);
       break;
-    case 3: // black
+    case 3: // off
       irsend.sendNEC(reverseBits(0xF906FF00, 32), 32, repeats);
       break;
     case 4: // on

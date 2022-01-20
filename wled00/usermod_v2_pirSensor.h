@@ -6,7 +6,7 @@
 
 // disables pir sensor whole functionality
 // #define DISABLE_PIR_SENSOR_MONITORING
-bool motionSensingGlobal = false; //global var with information if motion sensing should be active
+bool motionSensingGlobal = true; //global var with information if motion sensing should be active
 
 class UsermodPirSensor : public Usermod
 {
@@ -25,12 +25,12 @@ private:
   // *********** CONSTANTS ***********
   const uint8_t pirSensorPin = 16; // D0 on hardware
   // const uint32_t keepMovementDelayMinutes = 500000;  // 1 min delay before switch off after the sensor state goes LOW
-  const uint32_t keepMovementDelaySeconds = 3; // 1 min delay before switch off after the sensor state goes LOW
+  const uint32_t keepMovementDelaySeconds = 3*60; // 1 min delay before switch off after the sensor state goes LOW
   const uint16_t checkFrequencyMs = 1000;       // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
 
   // those presets are problematic when someone doesn't have any with that ID on fresh install
-  const uint16_t presetWhenMovementDetected = 5; // labeled as "Save to ID" in webinterface, 0 = default
-  const uint16_t presetWhenNoMovementDetected = 4;
+  const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface, 0 = default
+  const uint16_t presetWhenNoMovementDetected = 2;
 
 // debug var
 #ifdef DEBUG_PIR_SENSOR
