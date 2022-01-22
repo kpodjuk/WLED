@@ -229,7 +229,7 @@ public:
     // send buttonpresses according to found color
     if (distinctColor == "black")
     {
-      sendButtonPressToLightbulb(3);
+      // sendButtonPressToLightbulb(3);
     }
     else if (distinctColor == "white")
     {
