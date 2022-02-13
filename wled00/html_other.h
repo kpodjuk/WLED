@@ -14,12 +14,12 @@ class=""><option value="04">TEMP: TURN ON</option><option value="03"
 selected="selected">TEMP: TURN OFF</option><option value="03" 
 disabled="disabled">--------------</option><option value="08">White</option>
 <option value="03" disabled="disabled">--------------</option><option 
-value="23">Light Purple</option><option value="15">Purple</option><option 
-value="11">Dark Purple</option><option value="03" disabled="disabled">
---------------</option><option value="10">Light Green</option><option 
-value="06">Green</option><option value="03" disabled="disabled">--------------
-</option><option value="19">Light Blue</option><option value="22">Blue</option>
-<option value="07">Dark Blue</option><option value="03" disabled="disabled">
+value="23">Pink</option><option value="15">Purple</option><option value="11">
+Dark Purple</option><option value="03" disabled="disabled">--------------
+</option><option value="10">Light Green</option><option value="06">Green
+</option><option value="03" disabled="disabled">--------------</option><option 
+value="19">Light Blue</option><option value="22">Blue</option><option 
+value="07">Dark Blue</option><option value="03" disabled="disabled">
 --------------</option><option value="21">Light Yellow</option><option 
 value="17">Yellow</option><option value="09">Dark Yellow</option><option 
 value="03" disabled="disabled">--------------</option><option value="05">Red
@@ -32,9 +32,10 @@ class="btn infobtn brightnessButton" id="" onclick='autoColor("ON")'>
 Automatic color change ON</button><br><button 
 class="btn infobtn brightnessButton" id="" onclick='autoColor("OFF")'>
 Automatic color change OFF</button><br><h3 style="padding-top:5px">Effects:</h3>
-<select id="selectedEffect" size="1"><option value="16">Random colors</option>
-<option value="20">Smooth (fast)</option><option value="24">Smooth (slow)
-</option></select><br><button class="btn infobtn" id="backButton" 
+<select id="selectedEffect" size="1"><option value="" selected="selected">
+Choose your effect...</option><option value="16">Random colors</option><option 
+value="20">Smooth (fast)</option><option value="24">Smooth (slow)</option>
+</select><br><button class="btn infobtn" id="backButton" 
 onclick='window.location.href="/"'>Back</button></body><script>
 var loc=!1;function requestJson(e,t=!0,n=!0){var o=t?"/json/si":e?"/json/state":"/json",d=e?"post":"get";e&&(e.v=n,e.time=Math.floor(Date.now()/1e3),req=JSON.stringify(e)),fetch(o,{method:d,headers:{"Content-type":"application/json; charset=UTF-8"},body:req}).then(e=>(e.ok||console.log("Error when sending json"),e.json())).then(e=>{e.success})}function sendIrCommand(e){switch(e){case"color":irCommand=document.getElementById("selectedColor").value;break;case"effect":irCommand=document.getElementById("selectedEffect").value;break;default:irCommand=e}var t={bulbCommand:irCommand};console.log(t),requestJson(t)}function bodyLoaded(){document.getElementById("selectedEffect").selectedIndex=-1,document.getElementById("selectedColor").selectedIndex=-1,document.getElementById("selectedColor").addEventListener("change",(function(){sendIrCommand("color"),document.getElementById("selectedEffect").selectedIndex=-1})),document.getElementById("selectedEffect").addEventListener("change",(function(){sendIrCommand("effect"),document.getElementById("selectedColor").selectedIndex=-1}))}function autoColor(e){var t={autoColor:e};console.log(t),requestJson(t)}
 </script></html>)=====";
