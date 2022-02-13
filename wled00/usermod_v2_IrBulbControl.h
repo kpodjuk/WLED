@@ -6,15 +6,14 @@
 #include <IRutils.h>
 #include "sendButtonPressToLightbulb.h"
 
-// #define DEBUG_PRINT_SENT_COMMANDS
+
+// ################################## USEFUL DEFINES ##################################
+#define ENABLE_WEBSERIAL 0 // enable optional webserial support
+#define SHINE_INTERNAL_LED 0 // always shine internal LED when turned on (usefull to know if board gets power)
+#define DEBUG_PRINT_SENT_COMMANDS 0 // print all commands sent to lightbulbs
 
 
-// ################################## ENABLE_WEBSERIAL ##################################
-// #define ENABLE_WEBSERIAL
-
-
-
-#ifdef ENABLE_WEBSERIAL // WIFI DEBUG
+#if ENABLE_WEBSERIAL == 1// WIFI DEBUG
 #include <WebSerial.h>
 void recvMsg(uint8_t *data, size_t len)
 {
@@ -116,14 +115,19 @@ public:
     // Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
 
-    sendButtonPressToLightbulb(4); // Turn on at the very beggining
-    sendButtonPressToLightbulb(2); // bright up
-    sendButtonPressToLightbulb(2); // bright up
-    sendButtonPressToLightbulb(2); // bright up
-    sendButtonPressToLightbulb(2); // bright up
-    sendButtonPressToLightbulb(4); // Turn off
+#if SHINE_INTERNAL_LED == 1
+    pinMode(2, OUTPUT);
+    digitalWrite(2, LOW);
+#endif
+    
+    // sendButtonPressToLightbulb(4); // Turn on at the very beggining
+    // sendButtonPressToLightbulb(2); // bright up
+    // sendButtonPressToLightbulb(2); // bright up
+    // sendButtonPressToLightbulb(2); // bright up
+    // sendButtonPressToLightbulb(2); // bright up
+    // sendButtonPressToLightbulb(4); // Turn off
 
-#ifdef ENABLE_WEBSERIAL
+#if ENABLE_WEBSERIAL == 1
     WebSerial.begin(&server);
     WebSerial.msgCallback(recvMsg);
 #endif
@@ -359,7 +363,7 @@ public:
   void sendButtonPressToLightbulb(uint8_t button)
   {
 
-#if DEBUG_PRINT_SENT_COMMANDS
+#if DEBUG_PRINT_SENT_COMMANDS == 1
     Serial.printf("Sending ID=%i to bulb\n", button);
 #endif
 
