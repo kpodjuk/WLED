@@ -6,8 +6,27 @@
 #include <IRutils.h>
 #include "sendButtonPressToLightbulb.h"
 
+// #define DEBUG_PRINT_SENT_COMMANDS
 
-#define DEBUG_PRINT_SENT_COMMANDS 0
+
+// ################################## ENABLE_WEBSERIAL ##################################
+// #define ENABLE_WEBSERIAL
+
+
+
+#ifdef ENABLE_WEBSERIAL // WIFI DEBUG
+#include <WebSerial.h>
+void recvMsg(uint8_t *data, size_t len)
+{
+  WebSerial.println("Received Data...");
+  String d = "";
+  for (int i = 0; i < len; i++)
+  {
+    d += char(data[i]);
+  }
+  WebSerial.println(d);
+}
+#endif
 
 /*
  * Usermods allow you to add own functionality to WLED more easily
@@ -41,15 +60,13 @@ private:
   uint8_t lastCommand;
 
   // *********** CONSTANTS ***********
-  const uint8_t repeats = 2;                      // how many times to repeat communication of each command, for better reliabilty
-
+  const uint8_t repeats = 2; // how many times to repeat communication of each command, for better reliabilty
 
   // WTF???
   const bool makeSureCommandsAreReceived = false; // should last command be repeated once every X ms?
   // not sure what's wrong☝️👆, board crashes when it's == true
   // don't use this!
   const int16_t commandRepeatInterval_ms = 1500; // how many ms to wait before repeating command
-
 
   // For color approximation: Which colors you have on buttons
   const int distinctRGB[14][3] = {
@@ -98,7 +115,18 @@ public:
   {
     // Serial.println("Hello from UserModIrBulbControl!");
     irsend.begin();
-    // sendButtonPressToLightbulb(4); // Turn on at the very beggining
+
+    sendButtonPressToLightbulb(4); // Turn on at the very beggining
+    sendButtonPressToLightbulb(2); // bright up
+    sendButtonPressToLightbulb(2); // bright up
+    sendButtonPressToLightbulb(2); // bright up
+    sendButtonPressToLightbulb(2); // bright up
+    sendButtonPressToLightbulb(4); // Turn off
+
+#ifdef ENABLE_WEBSERIAL
+    WebSerial.begin(&server);
+    WebSerial.msgCallback(recvMsg);
+#endif
   }
 
   /*
@@ -160,7 +188,7 @@ public:
    */
   void addToJsonState(JsonObject &root)
   {
-  // send current variable status    
+    // send current variable status
   }
 
   String closestColor(int r, int g, int b)
