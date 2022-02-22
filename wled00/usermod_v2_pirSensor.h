@@ -28,7 +28,7 @@ private:
   const uint16_t presetWhenNoMovementDetected = 2; 
 
   // *********** OTHER CONSTS ***********
-  const uint32_t keepMovementDelaySeconds = (uint32_t)(keepMovementDelayMinutes * 60L*2L); 
+  const uint32_t keepMovementDelaySeconds = (uint32_t)(keepMovementDelayMinutes * 60L); 
   const uint16_t checkFrequencyMs = 1000; // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
 
 
