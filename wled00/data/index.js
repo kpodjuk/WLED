@@ -257,6 +257,8 @@ function onLoad() {
 		sl.addEventListener('touchstart', toggleBubble);
 		sl.addEventListener('touchend', toggleBubble);
 	}
+	// choose favourites tab as default
+	openTab(3);
 }
 
 function updateTablinks(tabI) {
