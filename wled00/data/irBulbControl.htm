@@ -143,10 +143,6 @@
     <button class="btn infobtn brightnessButton" id="" onclick="sendIrCommand('02')">Brightness Down
         &#127770;</button></br>
     
-    <button class="btn infobtn brightnessButton" id="" onclick="autoColor('ON')">Automatic color change ON
-    </button></br>
-    <button class="btn infobtn brightnessButton" id="" onclick="autoColor('OFF')">Automatic color change OFF
-    </button></br>
     <h3 style="padding-top:5px">Effects:</h3>
     <select id='selectedEffect' size="1">
         <option value="" selected="selected">Choose your effect...</option>
@@ -236,15 +232,6 @@
 
     }
 
-    function autoColor(status){
-        // send json with desired status
-        var obj = { "autoColor": status };
-        console.log(obj);
-        requestJson(obj);
-
-
-
-    }
 
 
 </script>

@@ -29,12 +29,18 @@ var cfg = {
 
 // ### #### MY FUNCTIONS ### ####
 
+function autoIRcolorCheckbox(){
+	var obj = { "autoIRcolorState": document.getElementById("autoIRcolor").checked };
+	requestJsonObject(obj);
+	
+}
+
 
 function motionSensingCheckbox() {
 	// console.log("motion checkbox");
 	var obj = { "motionSensingState": document.getElementById("motionSensing").checked };
 	requestJsonObject(obj)
-	console.log(obj);
+	// console.log(obj);
 }
 
 
@@ -968,6 +974,9 @@ function requestJson(command, rinfo = true, verbose = true) {
 				}
 				// populate motion sensing checkbox
 				document.getElementById("motionSensing").checked = json.state.motionSensingState;
+				// populate auto ir color checkbox
+				document.getElementById("autoIRcolor").checked = json.state.autoIRcolorState;
+
 				var info = json.info;
 				var name = info.name;
 				d.getElementById('namelabel').innerHTML = name;

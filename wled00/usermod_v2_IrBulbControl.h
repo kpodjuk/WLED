@@ -193,6 +193,7 @@ public:
   void addToJsonState(JsonObject &root)
   {
     // send current variable status
+    root["autoIRcolorState"] = globalAutoColor;
   }
 
   String closestColor(int r, int g, int b)
@@ -223,25 +224,23 @@ public:
     // Serial.printf(" G:%i", green);
     // Serial.printf(" B:%i\n", blue);
 
-    uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
-
-    if (bulbCommand)
+    // make sure "bulbCommand" is actually present in state
+    if (!root["bulbCommand"].isNull())
     {
-      // Serial.printf("I parse Json info, I think I should send=%i\t\t\t", bulbCommand);
+      uint8_t bulbCommand = root["bulbCommand"]; // Serve bulbCommand
       sendButtonPressToLightbulb(bulbCommand);
     }
 
-    if (root["autoColor"] == "ON") // serve autocolor on/off
+    // make sure "autoIRcolorState" is actually present in state
+    if (!root["autoIRcolorState"].isNull())
     {
-      globalAutoColor = true;
-    }
-    else if (root["autoColor"] == "OFF")
-    {
-      globalAutoColor = false;
+      // set global var
+      globalAutoColor = root["autoIRcolorState"];
     }
 
     if (globalAutoColor)
     {
+      // find closest color when state is changed
       serveClosestColor(root);
     }
   }
