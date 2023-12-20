@@ -6,32 +6,31 @@
 
 // disables pir sensor whole functionality
 // #define DISABLE_PIR_SENSOR_MONITORING
-bool motionSensingGlobal = false; // global var with information if motion sensing should be active
-void (*resetFunc)(void) = 0;      // declare reset function at address 0
+bool motionSensingGlobal = true; //global var with information if motion sensing should be active
 
 class UsermodPirSensor : public Usermod
 {
 private:
   // *********** PRIVATE VARIABLES ***********
   uint32_t previousCheckTime;
+  uint32_t currentCheckTime;
   bool currentPinState;
   bool keepMovementFlag;
   bool checkAnywaysFlag;
   uint32_t keepMovementCounter; // counter to keep HIGH/MOVED status for a x time after movement was detected
   uint16_t currentPreset;
   uint16_t previousPreset;
-  uint32_t lastResetTime;
 
   // *********** PARAMS ***********
-  const uint8_t pirSensorPin = 16;               // D0 on hardware
-  const float keepMovementDelayMinutes = 5;      // x min delay before switch off after the sensor state goes LOW
+  const uint8_t pirSensorPin = 16; // D0 on hardware
+  const float keepMovementDelayMinutes = 5; // x min delay before switch off after the sensor state goes LOW
   const uint16_t presetWhenMovementDetected = 1; // labeled as "Save to ID" in webinterface, 0 = default
-  const uint16_t presetWhenNoMovementDetected = 2;
-  const uint32_t resetCycleTimeMs = 3 * 60 * 1000; // [1min] time between forced periodic restarts
+  const uint16_t presetWhenNoMovementDetected = 2; 
 
   // *********** OTHER CONSTS ***********
-  const uint32_t keepMovementDelaySeconds = (uint32_t)(keepMovementDelayMinutes * (float)60);
+  const uint32_t keepMovementDelaySeconds = (uint32_t)(keepMovementDelayMinutes * (float)60); 
   const uint16_t checkFrequencyMs = 1000; // how often to check sensor in milliseconds, if you want "keepMovementDelaySeconds" to make sense this has to stay at 1000ms
+
 
 // debug var
 #ifdef DEBUG_PIR_SENSOR
@@ -40,6 +39,7 @@ private:
 
 public:
   UsermodPirSensor() : previousCheckTime(0),
+                       currentCheckTime(0),
                        currentPinState(LOW),
                        keepMovementFlag(false),
                        checkAnywaysFlag(false),
@@ -51,7 +51,6 @@ public:
   void setup()
   {
     pinMode(pirSensorPin, INPUT);
-    // Serial.println("Starting!");
   }
 
   void connected()
@@ -61,32 +60,12 @@ public:
 #endif
   }
 
-  void checkIfResetNeeded()
-  {
-    uint32_t currentTime = millis();
-
-    if (currentTime - lastResetTime > resetCycleTimeMs)
-    {
-      Serial.println("Performing periodic restart!");
-      lastResetTime = currentTime;
-      resetFunc();
-    }
-    else
-    {
-      // no need to check, not enough time passed
-    }
-
-    // Serial.printf("currentTime=%i\tlastResetTime=%i\tresetCycleTimeMs=%i\n", currentTime, lastResetTime, resetCycleTimeMs);
-  }
-
   void loop()
   {
     if (motionSensingGlobal)
     {
       // Serial.println("motionSensingGlobal=true");
       checkPirSensorPeriodically();
-
-      checkIfResetNeeded();
     }
   }
 
@@ -94,10 +73,10 @@ public:
   void checkPirSensorPeriodically()
   {
 
-    uint32_t currentTime = millis();
-    if (currentTime - previousCheckTime > checkFrequencyMs)
+    currentCheckTime = millis();
+    if (currentCheckTime - previousCheckTime > checkFrequencyMs)
     {
-      previousCheckTime = currentTime;
+      previousCheckTime = currentCheckTime;
       checkSensorState();
     }
     else
