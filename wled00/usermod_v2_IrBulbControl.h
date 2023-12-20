@@ -9,7 +9,7 @@
 
 // ################################## USEFUL DEFINES ##################################
 #define ENABLE_WEBSERIAL 0 // enable optional webserial support
-#define SHINE_INTERNAL_LED 0 // always shine internal LED when turned on (usefull to know if board gets power)
+#define SHINE_INTERNAL_LED 1 // always shine internal LED when turned on (usefull to know if board gets power)
 #define DEBUG_PRINT_SENT_COMMANDS 0 // print all commands sent to lightbulbs
 
 
@@ -53,7 +53,7 @@ class UserModIrBulbControl : public Usermod
 private:
   // Private class members. You can declare variables and functions only accessible to your usermod here
 
-  bool globalAutoColor = false; // should auto color approximation be turned on by default?
+  bool globalAutoColor = true; // should auto color approximation be turned on by default?
   int32_t previousCommandRepeat;
   int32_t currentCommandRepeat;
   uint8_t lastCommand;

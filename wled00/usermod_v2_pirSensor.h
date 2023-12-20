@@ -6,7 +6,7 @@
 
 // disables pir sensor whole functionality
 // #define DISABLE_PIR_SENSOR_MONITORING
-bool motionSensingGlobal = true; //global var with information if motion sensing should be active
+bool motionSensingGlobal = false; //global var with information if motion sensing should be active
 
 class UsermodPirSensor : public Usermod
 {
