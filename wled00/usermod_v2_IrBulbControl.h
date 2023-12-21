@@ -8,7 +8,7 @@
 
 
 // ################################## USEFUL DEFINES ##################################
-#define ENABLE_WEBSERIAL 1 // enable optional webserial support
+#define ENABLE_WEBSERIAL 0 // enable optional webserial support
 #define SHINE_INTERNAL_LED 1 // always shine internal LED when turned on (usefull to know if board gets power)
 #define DEBUG_PRINT_SENT_COMMANDS 0 // print all commands sent to lightbulbs
 
